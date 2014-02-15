@@ -99,6 +99,14 @@ namespace PrtgShell {
 		// this is the class that will be created and populated to validate sensor creation
 		// is there really a point to having these things obfuscate the names
 		
+		// http://stackoverflow.com/questions/2605268/reverse-function-of-httputility-parsequerystring
+		// this should have a method that uses the data you've given it to create the query string
+		// the trick to this is that the main class (this class) will never know what all it should include
+		// ... but the inherited classes will
+		// so is it possible to define a method here that somehow uses information defined in the inherited classes
+		// that then produces the correct, complete query string?
+		
+		
 		// how this thing should work:
 		// the creator contains all the base objects that all sensors get
 			// "name_" = $PrtgObject.Name
@@ -199,10 +207,13 @@ namespace PrtgShell {
 			this.sensor_type = "exexml";
 			this.environment_ = false;
 			this.usewindowsauthentication_ = false;
+			this.inherittriggers = true;
 			this.timeout_ = 60;
 			this.writeresult_ = 0;
 			this.name_ = "XML Custom EXE/Script Sensor";
 			this.tags_ = new string[] {"xmlexesensor"};
+			this.intervalgroup = true;	
+			this.interval = 60
 		}
 	}
 }
