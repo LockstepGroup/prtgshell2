@@ -296,6 +296,213 @@ namespace PrtgShell {
 			ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3;
 		}
 	}
+    
+    	public class PrtgSensorCreator {
+		// this is the class that will be created and populated to validate sensor creation
+		// is there really a point to having these things obfuscate the names
+		
+		// http://stackoverflow.com/questions/2605268/reverse-function-of-httputility-parsequerystring
+		// this should have a method that uses the data you've given it to create the query string
+		// the trick to this is that the main class (this class) will never know what all it should include
+		// ... but the inherited classes will
+		// so is it possible to define a method here that somehow uses information defined in the inherited classes
+		// that then produces the correct, complete query string?
+		
+		
+		// how this thing should work:
+		// the creator contains all the base objects that all sensors get
+			// "name_" = $PrtgObject.Name
+			// "tags_" = $PrtgObject.Tags
+			// "priority_" = $PrtgObject.Priority
+			// "intervalgroup" = 1
+			// "interval_" = "60|60 seconds"
+			// "inherittriggers" = 1
+			// "id" = $PrtgObject.ParentId
+			// "sensortype" = "exexml"
+		// it will also include some methods that they will all need
+			// such as "CreateQueryString" which is what the http post command needs
+			
+		// there will then be various derived classes that will inherit this down
+		
+		
+		private int sensor_priority = 3;
+		private bool inherit_interval = true;
+		private int polling_interval = 60;
+		//public Hashtable QueryString = new Hashtable();
+		public string name_ { get; set; }
+		public string[] tags_ { get; set; }
+		public string sensortype { get; set; }
+		public int id { get; set; }
+		
+		public int priority_ {
+			get {
+				return this.sensor_priority;
+			}
+			set {
+				if (value > 0 && value <= 5) {
+					this.sensor_priority = value;
+				} else  {
+					throw new ArgumentOutOfRangeException("Invalid value. Value must be between 0 and 5");
+				}
+			}
+		}
+		
+		public bool inherittriggers { get; set; }
+		
+		public bool intervalgroup {
+			get {
+				return this.inherit_interval;
+			}
+			set {
+				this.inherit_interval = value;
+			}
+		}
+		
+		public string interval_ {
+			get {
+				return this.polling_interval.ToString() + "|" + ToTimeString(this.polling_interval);
+			}
+		}
+		
+		public int interval {
+			get {
+				return this.polling_interval;
+			}
+			set {
+				this.polling_interval = value;
+			}
+		}
+
+        private string ToTimeString(int InputSeconds) {
+            if (((InputSeconds % 86400) == 0) && (InputSeconds / 86400 != 1)) {
+                return (InputSeconds / 86400).ToString() + " days";
+            } else if (((InputSeconds % 3600) == 0) && (InputSeconds / 3600 != 1)) {
+                return (InputSeconds / 3600).ToString() + " hours";
+            } else if (((InputSeconds % 60) == 0) && (InputSeconds / 60 != 1)) {
+                return (InputSeconds / 60).ToString() + " minutes";
+            } else {
+                return InputSeconds.ToString() + " seconds";
+            }
+        }
+		
+    }
+	
+	
+	public class NewExeXml : PrtgSensorCreator {
+	
+		public string exefile { get; set; }
+		
+		public string exefile_ {
+			get {
+				if (!String.IsNullOrEmpty(this.exefile)) {
+					return this.exefile + "|" + this.exefile + "||";
+				} else {
+					return String.Empty;
+				}
+			}
+		}
+		public string exefilelabel { get; set; }
+		public string exeparams_ { get; set; }
+		public bool environment_ { get; set; }
+		public bool usewindowsauthentication_ { get; set; }
+		public string mutexname_ { get; set; }
+		public int timeout_ { get; set; }
+		public int writeresult_ { get; set; }
+		
+		public NewExeXml () {
+			this.sensortype = "exexml";
+			this.environment_ = false;
+			this.usewindowsauthentication_ = false;
+			this.inherittriggers = true;
+			this.timeout_ = 60;
+			this.writeresult_ = 0;
+			this.name_ = "XML Custom EXE/Script Sensor";
+			this.tags_ = new string[] {"xmlexesensor"};
+			this.intervalgroup = true;	
+			this.interval = 60;
+		}
+		
+		
+		public string QueryString {
+			get {
+				NameValueCollection queryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
+
+				queryString["name_"] = this.name_;
+				queryString["tags_"] = String.Join(" ",this.tags_);
+				queryString["priority_"] = this.priority_.ToString();
+				queryString["intervalgroup"] = Convert.ToString(Convert.ToInt32(this.intervalgroup));
+				queryString["interval_"] = this.interval_;
+				queryString["inherittriggers"] = Convert.ToString(Convert.ToInt32(this.inherittriggers));
+				queryString["id"] = this.id.ToString();
+				queryString["sensortype"] = this.sensortype;
+				
+				queryString["exefile_"] = this.exefile_;
+				queryString["exefilelabel"] = this.exefilelabel;
+				queryString["exeparams_"] = this.exeparams_;
+				queryString["environment_"] = Convert.ToString(Convert.ToInt32(this.environment_));
+				queryString["usewindowsauthentication_"] = Convert.ToString(Convert.ToInt32(this.usewindowsauthentication_));
+				queryString["mutexname_"] = this.mutexname_;
+				queryString["timeout_"] = this.timeout_.ToString();
+				queryString["writeresult_"] = this.writeresult_.ToString();
+				
+				return queryString.ToString();
+			}
+		}
+	}
+	
+	
+	public class NewAggregation : PrtgSensorCreator {
+	
+		// "aggregationchannel_" = $AggregationChannelDefinition
+		// "warnonerror_" = 0 # 0 = "Factory sensor shows error state when one or more source sensors are in error state"; 1 = "Factory sensor shows warning state when one or more source sensors are in error state"; 2 = "Use custom formula", uses aggregation status field
+		// "aggregationstatus_" = 0 # https://prtg.forsyth.k12.ga.us/help/sensor_factory_sensor.htm#sensor_status
+		// "missingdata_" = 0 # 0 = " Do not calculate factory channels that use the sensor"; 1 = "Calculate the factory channels and use zero as source value"
+
+		public string aggregationchannel_ { get; set; }
+		public int warnonerror_ { get; set; }
+		public bool aggregationstatus_ { get; set; }
+		public bool missingdata_ { get; set; }
+		
+		public NewAggregation () {
+			this.sensortype = "aggregation";
+			this.inherittriggers = true;		
+			this.name_ = "Sensor Factory";
+			this.tags_ = new string[] {"factorysensor"};
+			this.intervalgroup = true;	
+			this.interval = 60;
+			
+			this.aggregationchannel_ = @"#1:Sample
+Channel(1000,0)
+#2:Response Time[ms]
+Channel(1001,1)";
+			this.warnonerror_ = 0;
+			this.aggregationstatus_ = false;
+			this.missingdata_ = false;
+		}
+		
+		
+		public string QueryString {
+			get {
+				NameValueCollection queryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
+
+				queryString["name_"] = this.name_;
+				queryString["tags_"] = String.Join(" ",this.tags_);
+				queryString["priority_"] = this.priority_.ToString();
+				queryString["intervalgroup"] = Convert.ToString(Convert.ToInt32(this.intervalgroup));
+				queryString["interval_"] = this.interval_;
+				queryString["inherittriggers"] = Convert.ToString(Convert.ToInt32(this.inherittriggers));
+				queryString["id"] = this.id.ToString();
+				queryString["sensortype"] = this.sensortype;
+				
+				queryString["aggregationchannel_"] = this.aggregationchannel_;
+				queryString["warnonerror_"] = this.warnonerror_.ToString();
+				queryString["aggregationstatus_"] = Convert.ToString(Convert.ToInt32(this.aggregationstatus_));
+				queryString["missingdata_"] = Convert.ToString(Convert.ToInt32(this.missingdata_));
+				
+				return queryString.ToString();
+			}
+		}
+	}
 }
 "@
 
@@ -385,8 +592,8 @@ function Get-PrtgServer {
 			$PrtgServerObject = New-Object PrtgShell.PrtgServer
 			
 			$PrtgServerObject.Protocol = $Protocol
-			$PrtgServerObject.Port = $Port
-			$PrtgServerObject.Server = $Server
+			$PrtgServerObject.Port     = $Port
+			$PrtgServerObject.Server   = $Server
 			$PrtgServerObject.UserName = $UserName
 			$PrtgServerObject.PassHash = $PassHash
 			
@@ -613,6 +820,112 @@ function Get-PrtgTableData {
 		}
 	}
 }
+
+###############################################################################
+
+function New-PrtgSensor {
+    Param (
+        [Parameter(Mandatory=$True,Position=0)]
+        [Prtg]$PrtgObject
+    )
+
+    BEGIN {
+        Add-Type -AssemblyName System.Web # Needed for System.Web.HttpUtility
+        $PRTG = $Global:PrtgServerObject
+		if ($PRTG.Protocol -eq "https") { HelperSSLConfig }
+    }
+
+    PROCESS {
+
+    ###############################################################################
+    # Tediously inspect the Object, needs more c#, maybe?
+
+    $PropertyTypes = @{Name            = "String"
+                       Tags            = "String"
+                       Priority        = "Int32"
+                       Script          = "String"
+                       ExeParams       = "String"
+                       Environment     = "Int32"
+                       SecurityContext = "Int32"
+                       Mutex           = "String"
+                       ExeResult       = "Int32"
+                       ParentId        = "Int32"}
+
+    foreach ($p in $PropertyTypes.GetEnumerator()) {
+        $PropName  = $p.Name
+        $PropValue = $PrtgObject."$PropName"
+        $Type      = $PrtgObject."$PropName".GetType().Name
+        
+        if ($Type -eq $p.Value) {
+            switch ($PropName) {
+                priority {
+                    if (($PropValue -lt 1) -or ($PropValue -gt 5)) {
+                        $ErrorMessage = "Error creating Sensor $($Prtgobject.Name). $PropName is $PropValue, must be a integer from 1 to 5."
+                    }
+                }
+                { ($_ -eq "environment") -or ($_ -eq "securitycontext") } {
+                    if (($PropValue -lt 0) -or ($PropValue -gt 1)) {
+                        $ErrorMessage = "Error creating Sensor $($Prtgobject.Name). $PropName is $PropValue, must be a integer from 0 to 1."
+                    }
+                }
+                exeresult {
+                    if (($PropValue -lt 0) -or ($PropValue -gt 2)) {
+                        $ErrorMessage = "Error creating Sensor $($Prtgobject.Name). $PropName is $PropValue, must be a integer from 0 to 1."
+                    }
+                }
+            }
+        } else {
+            $ErrorMessage = "Error creating Sensor $($Prtgobject.Name), $($p.Name) is $Type, should be $($p.Value)"
+        }
+        if ($ErrorMessage) { return $ErrorMessage }
+    }
+
+    ###############################################################################
+    # build the post data payload/query string
+    # note that "$QueryString.ToString()" actually builds this
+    
+    $QueryStringTable = @{
+	    "name_" = $PrtgObject.Name
+	    "tags_" = $PrtgObject.Tags
+	    "priority_" = $PrtgObject.Priority
+	    "exefile_" = "$($PrtgObject.Script)|$$(PrtgObject.Script)||" # WHAT THE FUCK
+	    "exefilelabel" = ""
+	    "exeparams_" = $PrtgObject.ExeParams
+	    "environment_" = $PrtgObject.Environment
+	    "usewindowsauthentication_" = $PrtgObject.SecurityContext
+	    "mutexname_" = $PrtgObject.Mutex
+	    "timeout_" = 60
+	    "writeresult_" = $PrtgObject.ExeResult
+	    "intervalgroup" = 1
+	    "interval_" = "60|60 seconds"
+	    "inherittriggers" = 1
+	    "id" = $PrtgObject.ParentId
+	    "sensortype" = "exexml"
+    }
+
+    # create a blank, writable HttpValueCollection object
+    $QueryString = [System.Web.httputility]::ParseQueryString("")
+
+    # iterate through the hashtable and add the values to the HttpValueCollection
+    foreach ($Pair in $QueryStringTable.GetEnumerator()) {
+	    $QueryString[$($Pair.Name)] = $($Pair.Value)
+    }
+
+    ###############################################################################
+    # fire the api call
+
+    $Url  = "https://$($PRTG.Server)"
+    $Url += "/addsensor5.htm?"
+    $Url += "username=$($PRTG.UserName)&"
+    $Url += "passhash=$($PRTG.PassHash)"
+    #$Url
+
+    HelperHTTPPostCommand $Url $QueryString.ToString() | Out-Null
+
+    }
+}
+
+###############################################################################
 
 
 
