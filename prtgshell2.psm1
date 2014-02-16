@@ -461,7 +461,12 @@ Channel(1001,1)";
     }
 	
 	
-	public class PrtgObject {
+	public class PrtgBaseObject {
+		public int objid { get; set; }
+		public string name { get; set; }
+	}
+	
+	public class PrtgObject : PrtgBaseObject {
 		// all of the properties and methods here are used in
 		// probes, groups, devices, and sensors
 		
@@ -469,9 +474,7 @@ Channel(1001,1)";
 		
 		private int priority = 3;
 		
-		public int objid { get; set; }
 		public string type { get; set; }
-		public string name { get; set; }
 		public string tags { get; set; }
 		public string active { get; set; }
 		public string probe { get; set; }
@@ -561,13 +564,53 @@ Channel(1001,1)";
 		public string lastdown { get; set; }
 	}
 	
-	public class PrtgChannel {
-		// channels... are special
-		
-		public int objid { get; set; }
-		public string name { get; set; }
+	public class PrtgChannel : PrtgBaseObject {
 		public string lastvalue { get; set; }
 		public decimal lastvalue_raw { get; set; }
+	}
+	
+	public class PrtgTodo : PrtgBaseObject {
+		public string datetime { get; set; }
+		public decimal status { get; set; }
+		public string priority { get; set; }
+		public decimal message { get; set; }
+		public decimal active { get; set; }
+	}
+	
+	public class PrtgMessage : PrtgBaseObject {
+		public string datetime { get; set; }
+		public decimal parent { get; set; }
+		public string type { get; set; }
+		public decimal status { get; set; }
+		public decimal message { get; set; }
+	}
+	
+	public class PrtgValue {
+		public string datetime { get; set; }
+		public decimal value_ { get; set; }
+		public string coverage { get; set; }
+	}
+
+	public class PrtgHistory {
+		public string datetime { get; set; }
+		public decimal dateonly { get; set; }
+		public string timeonly { get; set; }
+		public string user { get; set; }
+		public string message { get; set; }
+	}
+	
+	public class PrtgStoredReport : PrtgBaseObject {
+		public string datetime { get; set; }
+		public decimal size { get; set; }
+	}
+	
+	public class PrtgMessage : PrtgBaseObject {
+		public string template { get; set; }
+		public decimal period { get; set; }
+		public string schedule { get; set; }
+		public decimal email { get; set; }
+		public decimal lastrun { get; set; }
+		public decimal nextrun { get; set; }
 	}
 
 }
