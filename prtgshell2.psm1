@@ -604,7 +604,7 @@ Channel(1001,1)";
 		public decimal size { get; set; }
 	}
 	
-	public class PrtgMessage : PrtgBaseObject {
+	public class PrtgReport : PrtgBaseObject {
 		public string template { get; set; }
 		public decimal period { get; set; }
 		public string schedule { get; set; }
