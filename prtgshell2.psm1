@@ -911,6 +911,32 @@ function Get-PrtgTableData {
 		$Data = $QueryObject.Data
 
 		$ReturnData = @()
+		
+		<#
+		
+		HOW THIS WILL LIKELY NEED TO WORK
+		---
+		
+		build a switch statement that uses $Content to determine which types of objects we're going to create
+		foreach item, assign all properties to the object
+		attach the object to $ReturnData
+		
+		$PrtgObjectType = switch ($Content) {
+			"probes"	{ "PrtgShell.PrtgProbe" }
+			"groups"	{ "PrtgShell.PrtgGroup" }
+			"devices"	{ "PrtgShell.PrtgDevice" }
+			"sensors"	{ "PrtgShell.PrtgSensor" }
+			"todos"		{ "PrtgShell.PrtgTodo" }
+			"messages"	{ "PrtgShell.PrtgMessage" }
+			"values"	{ "PrtgShell.PrtgValue" }
+			"channels"	{ "PrtgShell.PrtgChannel" }
+			"history"	{ "PrtgShell.PrtgHistory" }
+		}
+		
+		$ThisObject = New-Object $PrtgObjectType
+		
+		#>
+		
 
 		foreach ($item in $Data.$Content.item) {
 			$ThisRow = "" | Select-Object $SelectedColumns
