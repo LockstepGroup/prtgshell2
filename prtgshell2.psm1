@@ -562,6 +562,10 @@ Channel(1001,1)";
 		public string lastcheck { get; set; }
 		public string lastup { get; set; }
 		public string lastdown { get; set; }
+		
+		public string lastvalue { get; set; }
+		public string lastvalue_raw { get; set; }
+		public string minigraph { get; set; }
 	}
 	
 	public class PrtgChannel : PrtgBaseObject {
@@ -921,6 +925,8 @@ function Get-PrtgTableData {
 		foreach item, assign all properties to the object
 		attach the object to $ReturnData
 		
+		#>
+		
 		$PrtgObjectType = switch ($Content) {
 			"probes"	{ "PrtgShell.PrtgProbe" }
 			"groups"	{ "PrtgShell.PrtgGroup" }
@@ -933,26 +939,25 @@ function Get-PrtgTableData {
 			"history"	{ "PrtgShell.PrtgHistory" }
 		}
 		
-		$ThisObject = New-Object $PrtgObjectType
 		
-		#>
 		
 
 		foreach ($item in $Data.$Content.item) {
-			$ThisRow = "" | Select-Object $SelectedColumns
+			$ThisObject = New-Object $PrtgObjectType
+			#$ThisRow = "" | Select-Object $SelectedColumns
 			foreach ($Prop in $SelectedColumns) {
 				if ($Content -eq "channels" -and $Prop -eq "lastvalue_raw") {
 					# fix a bizarre formatting bug
-					#$ThisRow.$Prop = HelperFormatHandler $item.$Prop
-					$ThisRow.$Prop = $item.$Prop
+					#$ThisObject.$Prop = HelperFormatHandler $item.$Prop
+					$ThisObject.$Prop = $item.$Prop
 				} elseif ($HTMLColumns -contains $Prop) {
 					# strip HTML, leave bare text
-					$ThisRow.$Prop =  $item.$Prop -replace "<[^>]*?>|<[^>]*>", ""
+					$ThisObject.$Prop =  $item.$Prop -replace "<[^>]*?>|<[^>]*>", ""
 				} else {
-					$ThisRow.$Prop = $item.$Prop
+					$ThisObject.$Prop = $item.$Prop
 				}
 			}
-			$ReturnData += $ThisRow
+			$ReturnData += $ThisObject
 		}
 
 		if ($ReturnData.name -eq "Item" -or (!($ReturnData.ToString()))) {
