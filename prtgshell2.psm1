@@ -9,14 +9,17 @@
 ###############################################################################
 
 
-Add-Type -TypeDefinition @"
+Add-Type  -ReferencedAssemblies @(([System.Reflection.Assembly]::LoadWithPartialName("System.Web")).Location) -TypeDefinition @"
+
 using System;
 using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
+using System.Web;
 
 namespace PrtgShell {
 	public class exexml {
@@ -505,6 +508,7 @@ Channel(1001,1)";
 	}
 }
 "@
+
 
 ###############################################################################
 
