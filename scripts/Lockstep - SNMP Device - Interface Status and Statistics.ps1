@@ -1,11 +1,55 @@
-﻿$Timer = Get-Date
+﻿$Device     = "uned.addicks.us"
+$Community  = "pysnmptest"
+$DeviceId   = "2008"
+$SensorName = "ge.1.2 - test"
+$PrtgHost   = "https://athena-temp.addicks.us/"
+$PrtgUser   = "prtgadmin"
+$PrtgHash   = "1510974160"
+
+$PrtgHostRx = [regex] ".+?\/\/(.+?)\/"
+$PrtgHost   = $PrtgHostRx.Match("$($PrtgHost)").Groups[1].Value
+
+$SensorNameRx = [regex] "(.+?)\ "
+$SensorName   = $SensorNameRx.Match($SensorName).Groups[1].Value
+
+$WorkDir     = "$($env:temp)\$DeviceId"
+$LockFile    = "$WorkDir\.lockfile"
+$LastRun     = "$WorkDir\.lastrun"
+$Interval    = 1
+$DesiredTime = (Get-Date).AddSeconds($Interval * -1)
+
+if (!(Test-Path $WorkDir)) { $MakeDir = New-Item -Path $WorkDir -ItemType Directory }
+
+if (Test-Path $LastRun) {
+    $LastWrite = (gci $LastRun).LastWriteTime
+    if (($DesiredTime -lt $LastWrite) -or (Test-Path $lockfile)) {
+        (gc "$WorkDir\$Name")
+        return "no run"
+    }
+}
+
+$CreateLastRun = New-Item -Path $LastRun  -ItemType File -Force
+$CreateLastRun = New-Item -Path $LockFile -ItemType File -Force
+
+###############################################################################
+# Connect to Prtg Server and get the current sensors with the tag netapplun
+
+$PrtgConnection = Get-PrtgServer $PrtgHost $PrtgUser $PrtgHash
+
+$UniqueTag      = "snmpinterface"
+$CurrentSensors = Get-PrtgTableData sensors $DeviceId -FilterTags $UniqueTag
+
+###############################################################################
+#
+
 function Test-ModuleImport ([string]$Module) {
     Import-Module $Module -ErrorAction SilentlyContinue
     if (!($?)) { return $false } `
         else   { return $true }
 }
 
-$Modules = @("prtgshell")
+$Modules = @("C:\dev\prtgshell\prtgshell.psm1"
+             "C:\_strap\sharpsnmp\sharpsnmp.psm1")
 
 foreach ($m in $Modules) {
     if ($Debug) { "...importing $m" }
@@ -29,124 +73,127 @@ function New-OidObject ($Oid,$Label) {
     return $OidObject
 }
 
-$OidTable = @()
-$OidTable += New-OidObject "1.3.6.1.4.1.4329.15.3.5.1.2.1.17" Hardware
-$OidTable += New-OidObject "1.3.6.1.4.1.4329.15.3.5.1.2.1.7"  Firmware
-$OidTable += New-OidObject "1.3.6.1.4.1.4329.15.3.5.1.2.1.2"  Name
-$OidTable += New-OidObject "1.3.6.1.4.1.4329.15.3.5.1.2.1.14" IpAddress
+$OidTable  = @()
+$OidTable += New-OidObject "1.3.6.1.2.1.2.2.1.7"  AdminStatus
+$AdminLookup = @{ 1 = "up"
+                  2 = "down"
+                  3 = "testing" }
 
-$OidTable += New-OidObject "1.3.6.1.4.1.4329.15.3.5.1.2.1.4"  Serial
-$OidTable += New-OidObject "1.3.6.1.4.1.4329.15.3.5.1.2.1.22" State       # 1 = active, 2 = inactive
+$OidTable += New-OidObject "1.3.6.1.2.1.2.2.1.8"  OperStatus
+$OperLookup = @{ 1 = "up"
+                 2 = "down"
+                 3 = "testing"
+                 4 = "unknown"
+                 5 = "dormant"
+                 6 = "not present"
+                 7 = "lower layer down" }
 
-$OidTable += New-OidObject "1.3.6.1.4.1.4329.15.3.5.2.2.1.3"  InOctets
-$OidTable += New-OidObject "1.3.6.1.4.1.4329.15.3.5.2.2.1.8"  OutOctets
+$OidTable += New-OidObject "1.3.6.1.2.1.2.2.1.10" InOctets
+$OidTable += New-OidObject "1.3.6.1.2.1.2.2.1.16" OutOctets
 
-$OidTable += New-OidObject "1.3.6.1.4.1.4329.15.3.5.2.2.1.11" Uptime      # in 1/100 of a second
-$OidTable += New-OidObject "1.3.6.1.4.1.4329.15.3.5.2.2.1.15" SessionTime # with controller
+$OidTable += New-OidObject "1.3.6.1.2.1.2.2.1.14" InErrors
+$OidTable += New-OidObject "1.3.6.1.2.1.2.2.1.20" OutErrors
 
-$OidTable += New-OidObject "1.3.6.1.4.1.4329.15.3.5.2.2.1.16" 80211a
-$OidTable += New-OidObject "1.3.6.1.4.1.4329.15.3.5.2.2.1.17" 80211b
-$OidTable += New-OidObject "1.3.6.1.4.1.4329.15.3.5.2.2.1.18" 80211g
-$OidTable += New-OidObject "1.3.6.1.4.1.4329.15.3.5.2.2.1.19" 80211n5
-$OidTable += New-OidObject "1.3.6.1.4.1.4329.15.3.5.2.2.1.20" 80211n24
+$OidTable += New-OidObject "1.3.6.1.2.1.2.2.1.13" InDiscards
+$OidTable += New-OidObject "1.3.6.1.2.1.2.2.1.19" OutDiscards
 
-$OidTable += New-OidObject "1.3.6.1.4.1.4329.15.3.5.1.3.1.3"  RadioType $true
-<#  0  off
-    1  dot11a
-    2  dot11an
-    3  dot11anStrict
-    4  dot11b
-    5  dot11g
-    6  dot11bg
-    7  dot11gn
-    8  dot11bgn
-    9  dot11gnStrict
-    10 dot11j         #>
+$OidTable += New-OidObject "1.3.6.1.2.1.2.2.1.5"  Speed
 
-$OidTable += New-OidObject "1.3.6.1.4.1.4329.15.3.1.1.7.1.2" ConfiguredChannel $true $true # 0 means auto
+# $OidTable += New-OidObject "1.3.6.1.4.1.9.5.1.4.1.1.10" Duplex #This may just be cisco
 
-# NEED TO COME BACK AND CALCULATE FRIENDLY CHANNEL NUMBERS
+function Get-InterfaceInfo ($Index) {
+    $Oids = @()
+    foreach ($o in $OidTable) {
+        $FullOid  = $o.Oid + "." + $Index
+        $Oids    += $FullOid
+    }
 
-$OidTable += New-OidObject "1.3.6.1.4.1.4329.15.3.1.1.7.1.6"  SelectedChannel   $true $true
-$OidTable += New-OidObject "1.3.6.1.4.1.4329.15.3.1.1.7.1.9"  PowerLevel        $true $true
-$OidTable += New-OidObject "1.3.6.1.4.1.4329.15.3.1.4.3.1.31" NoiseFloor        $true $true
+    try   {
+        $Results = Invoke-SnmpGet $Device $Community $Oids
+    } catch {
+        Remove-Item $LockFile
+        return Set-PrtgError "Snmp Timeout"
+    }
+    
+    foreach ($o in $OidTable) {
+        $Data = ($Results | ? { $_.OID -eq "`.$($o.Oid)`.$Index" }).Data
+        Set-Variable -Name $o.Label -Value $Data
+    }
 
-$Oids = @{ifAdminStatus = "Admin Status" # .1.3.6.1.2.1.2.2.1.7
-          ifOperStatus  = "Operational Status" # .1.3.6.1.2.1.2.2.1.8
-          ifInOctets    = "Inbound Traffic" # .1.3.6.1.2.1.2.2.1.10
-          ifOutOctets   = "Outbound Traffic" # .1.3.6.1.2.1.2.2.1.16
-          ifInErrors    = "Inbound Errors" # .1.3.6.1.2.1.2.2.1.14
-          ifOutErrors   = "Outbound Errors" # .1.3.6.1.2.1.2.2.1.20
-          ifInDiscards  = "Inbound Discards" # .1.3.6.1.2.1.2.2.1.13
-          ifOutDiscards = "Outbound Discards" # .1.3.6.1.2.1.2.2.1.19
-          ifSpeed       = "Speed"} # .1.3.6.1.2.1.2.2.1.5
+    $Speed = 1000000000 / 1000000
+    if ($Speed -gt 999) { $FriendlySpeed = "1Gb/s"} `
+                   else { $FriendlySpeed = "$Speed`Mb/s" }
 
+    $FriendlyAdmin = $AdminLookup.Get_Item([int]$AdminStatus)
 
-$Count     = $Oids.Count
-$OidString = ""
+    $FriendlyOper  = $OperLookup.Get_Item([int]$OperStatus)
 
-foreach ($o in $Oids.GetEnumerator()) {
-    $PortOid = $Port - 1
-    if ($PortOid -eq 0) {
-        $OidString += " IF-MIB::$($o.name)"
-    } else {
-        $OidString += " IF-MIB::$($o.name).$PortOid"
+    $Message = "Port is admin $FriendlyAdmin, operationally $FriendlyOper"
+
+    $InOctets    = [int64]$InOctets
+    $OutOctets   = [int64]$OutOctets
+    $TotalOctets = $InOctets + $OutOctets
+
+    $XmlOutput  = "<prtg>`n"
+    $XmlOutput += "  <text>$Message</text>`n"
+
+    $XmlOutput += Set-PrtgResult "Total Traffic"    $TotalOctets  BytesBandwidth -ss KiloBit -mo Difference -sc -dm Auto
+    $XmlOutput += Set-PrtgResult "Inbound Traffic"  $InOctets     BytesBandwidth -ss KiloBit -mo Difference -sc -dm Auto
+    $XmlOutput += Set-PrtgResult "Outbound Traffic" $OutOctets    BytesBandwidth -ss KiloBit -mo Difference -sc -dm Auto
+
+    $XmlOutput += Set-PrtgResult "Inbound Errors"   $InErrors     packets
+    $XmlOutput += Set-PrtgResult "Outbound Errors"  $OutErrors    packets
+
+    $XmlOutput += Set-PrtgResult "Inbound Discards" $InDiscards   packets
+    $XmlOutput += Set-PrtgResult "Inbound Discards" $InDiscards   packets
+
+    $XmlOutput += "</prtg>"
+
+    $XmlOutput
+}
+
+$Create  = @()
+$IndexRx = [regex] "\d+$"
+
+try   {
+    $Aliases = Invoke-SnmpWalk $Device $Community .1.3.6.1.2.1.31.1.1.1.18
+} catch {
+    Remove-Item $LockFile
+    return Set-PrtgError "Snmp Timeout"
+}
+
+try   {
+    $Names   = Invoke-SnmpWalk $Device $Community .1.3.6.1.2.1.31.1.1.1.1
+} catch {
+    Remove-Item $LockFile
+    return Set-PrtgError "Snmp Timeout"
+}
+
+foreach ($a in ($Aliases | ? { $_.Data })) {
+    $Index = $IndexRx.Match($a.OID).Value
+    $Name  = ($Names | ? { $_.Oid -eq ".1.3.6.1.2.1.31.1.1.1.1.$Index" }).Data
+    Get-InterfaceInfo $Index | Out-File "$WorkDir\$Name"
+
+    $Lookup = $CurrentSensors | ? { $_.Sensor -eq $Lun.Path }
+
+    if (!($Lookup)) {
+    $Create += $Name
+
+    $SensorObject                 = "" | Select Name,Tags,Priority,Script,ExeParams,Environment,SecurityContext,Mutex,ExeResult,ParentId
+    $SensorObject.Name            = "$Name - $($a.Data)"
+    $SensorObject.Tags            = "xmlexesensor snmpinterface" # space seperated tags
+    $SensorObject.Priority        = 3 # 1-5
+    $SensorObject.Script          = "Lockstep - NetApp - Lun Usage.ps1"
+    $SensorObject.ExeParams       = ""
+    $SensorObject.Environment     = 1 # 0 for default, 1 for placeholders
+    $SensorObject.SecurityContext = 1 # 0 for probe service, 1 for windows creds of device
+    $SensorObject.Mutex           = ""
+    $SensorObject.ExeResult       = 1 # 0 discard, 1 always write result, 2 write result on error
+    $SensorObject.ParentId        = $DeviceId
+        
+    $CreateSensor = New-PrtgSensor $SensorObject
     }
 }
 
-$Command  = "snmpbulkget -Oq -r 3 -v $Version -c $Community -Cn$Count -Cr1 $Agent $OidString"
-$Results  = iex $Command
-$OidRx    = [regex] '::(\w+)\.\d+\ (.*)'
-$Channels = ""
-$Total    = 0
-
-foreach ($r in $Results) {
-    $Match   = $OidRx.Match($r)
-    $Name    = $Match.groups[1].value
-    $Value   = $Match.groups[2].value
-    $Channel = $Oids.get_item($Name)
-
-    switch ($Name) {
-        {($_ -eq "ifOutOctets") -or ($_ -eq "ifInOctets")} {
-            $Value     = [int64]$Value
-            $Channels += Set-PrtgResult $Channel $Value BytesBandwidth -ss KiloBit -mo Difference -sc -dm Auto
-            $Total    += $Value
-        }
-        {($_ -eq "ifOutDiscards") -or ($_ -eq "ifInDiscards") -or ($_ -eq "ifOutErrors") -or ($_ -eq "ifInErrors")} {
-            $Channels += Set-PrtgResult $Channel $Value Count -mo Difference
-        }
-        ifOperStatus {
-            if (($Value -eq "dormant") -or ($value -eq "up")) { $Value = 0 } `
-                elseif ($Value -eq "down")                    { $Value = 1; $ErrorText = "Port is operationally down" } `
-                elseif ($Value -eq "notPresent")              { $Value = 2; $ErrorText = "Port is no present" } `
-                else                                          { $Value = 3; $ErrorText = "Port status is unknown" }
-            $Channels += Set-PrtgResult $Channel $Value oper  -me 0
-        }
-        ifAdminStatus {
-            if ($Value -eq "up") { $Value = 0 } `
-                else             { $Value = 1; $ErrorText = "Port is administratively disabled" }
-            $Channels += Set-PrtgResult $Channel $Value admin -me 0
-        }
-        ifSpeed {
-            $Channels += Set-PrtgResult $Channel ($Value / 1000000)  Mb -MinWarn 1000000000
-        }
-        default { "Error" }
-    }
-}
-
-$TotalChannel = Set-PrtgResult "Total Traffic" $Total BytesBandwidth -ss KiloBit -mo Difference -sc -dm Auto
-
-$Elapsed = [math]::round(((Get-Date) - $Timer).TotalMilliSeconds,2)
-
-$XmlOutput  = "<prtg>`n"
-$XmlOutput += $TotalChannel
-$XmlOutput += $Channels
-
-if ($ErrorText) {
-    $XmlOutput += "  <Text>$ErrorText</Text>`n"
-    $XmlOutput += "  <Error>1</Error>`n"
-}
-
-$XmlOutput += "</prtg>"
-
-$XmlOutput
+Remove-Item -Path $LockFile
+return (gc "$WorkDir\$SensorName")
