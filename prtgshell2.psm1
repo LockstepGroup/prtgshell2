@@ -506,9 +506,34 @@ Channel(1001,1)";
 			}
 		}
 	}
+
+    public class NewChannel {
+        public string channel { get; set; }
+        public decimal value  { get; set; }
+        
+        
+    }
 }
 "@
+<#
 
+get {
+				return this.sensor_priority;
+			}
+			set {
+				if (value > 0 && value <= 5) {
+					this.sensor_priority = value;
+				} else  {
+					throw new ArgumentOutOfRangeException("Invalid value. Value must be between 0 and 5");
+				}
+			}
+    $StandardUnits = @("BytesBandwidth","BytesMemory","BytesDisk","Temperature","Percent","TimeResponse","TimeSeconds","Custom","Count","CPU","BytesFile","SpeedDisk","SpeedNet","TimeHours")
+    if ($StandardUnits -contains $Unit) {
+        $Result += "    <unit>$Unit</unit>`n"
+    } elseif ($Unit) {
+        $Result += "    <unit>custom</unit>`n"
+        $Result += "    <customunit>$Unit</customunit>`n"
+#>
 
 ###############################################################################
 
@@ -830,101 +855,19 @@ function Get-PrtgTableData {
 function New-PrtgSensor {
     Param (
         [Parameter(Mandatory=$True,Position=0)]
-        [Prtg]$PrtgObject
+        [PrtgShell.PrtgSensorCreator]$PrtgObject
     )
 
     BEGIN {
-        Add-Type -AssemblyName System.Web # Needed for System.Web.HttpUtility
-        $PRTG = $Global:PrtgServerObject
-		if ($PRTG.Protocol -eq "https") { HelperSSLConfig }
+        if (!($PrtgServerObject.Server)) { Throw "Not connected to a server!" }
+		$PrtgServerObject.OverrideValidation()
     }
 
     PROCESS {
 
-    ###############################################################################
-    # Tediously inspect the Object, needs more c#, maybe?
+    $Url = $PrtgServerObject.UrlBuilder("addsensor5.htm")
 
-    $PropertyTypes = @{Name            = "String"
-                       Tags            = "String"
-                       Priority        = "Int32"
-                       Script          = "String"
-                       ExeParams       = "String"
-                       Environment     = "Int32"
-                       SecurityContext = "Int32"
-                       Mutex           = "String"
-                       ExeResult       = "Int32"
-                       ParentId        = "Int32"}
-
-    foreach ($p in $PropertyTypes.GetEnumerator()) {
-        $PropName  = $p.Name
-        $PropValue = $PrtgObject."$PropName"
-        $Type      = $PrtgObject."$PropName".GetType().Name
-        
-        if ($Type -eq $p.Value) {
-            switch ($PropName) {
-                priority {
-                    if (($PropValue -lt 1) -or ($PropValue -gt 5)) {
-                        $ErrorMessage = "Error creating Sensor $($Prtgobject.Name). $PropName is $PropValue, must be a integer from 1 to 5."
-                    }
-                }
-                { ($_ -eq "environment") -or ($_ -eq "securitycontext") } {
-                    if (($PropValue -lt 0) -or ($PropValue -gt 1)) {
-                        $ErrorMessage = "Error creating Sensor $($Prtgobject.Name). $PropName is $PropValue, must be a integer from 0 to 1."
-                    }
-                }
-                exeresult {
-                    if (($PropValue -lt 0) -or ($PropValue -gt 2)) {
-                        $ErrorMessage = "Error creating Sensor $($Prtgobject.Name). $PropName is $PropValue, must be a integer from 0 to 1."
-                    }
-                }
-            }
-        } else {
-            $ErrorMessage = "Error creating Sensor $($Prtgobject.Name), $($p.Name) is $Type, should be $($p.Value)"
-        }
-        if ($ErrorMessage) { return $ErrorMessage }
-    }
-
-    ###############################################################################
-    # build the post data payload/query string
-    # note that "$QueryString.ToString()" actually builds this
-    
-    $QueryStringTable = @{
-	    "name_" = $PrtgObject.Name
-	    "tags_" = $PrtgObject.Tags
-	    "priority_" = $PrtgObject.Priority
-	    "exefile_" = "$($PrtgObject.Script)|$$(PrtgObject.Script)||" # WHAT THE FUCK
-	    "exefilelabel" = ""
-	    "exeparams_" = $PrtgObject.ExeParams
-	    "environment_" = $PrtgObject.Environment
-	    "usewindowsauthentication_" = $PrtgObject.SecurityContext
-	    "mutexname_" = $PrtgObject.Mutex
-	    "timeout_" = 60
-	    "writeresult_" = $PrtgObject.ExeResult
-	    "intervalgroup" = 1
-	    "interval_" = "60|60 seconds"
-	    "inherittriggers" = 1
-	    "id" = $PrtgObject.ParentId
-	    "sensortype" = "exexml"
-    }
-
-    # create a blank, writable HttpValueCollection object
-    $QueryString = [System.Web.httputility]::ParseQueryString("")
-
-    # iterate through the hashtable and add the values to the HttpValueCollection
-    foreach ($Pair in $QueryStringTable.GetEnumerator()) {
-	    $QueryString[$($Pair.Name)] = $($Pair.Value)
-    }
-
-    ###############################################################################
-    # fire the api call
-
-    $Url  = "https://$($PRTG.Server)"
-    $Url += "/addsensor5.htm?"
-    $Url += "username=$($PRTG.UserName)&"
-    $Url += "passhash=$($PRTG.PassHash)"
-    #$Url
-
-    HelperHTTPPostCommand $Url $QueryString.ToString() | Out-Null
+    HelperHTTPPostCommand $Url $PrtgObject.QueryString | Out-Null
 
     }
 }
