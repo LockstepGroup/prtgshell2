@@ -511,7 +511,20 @@ Channel(1001,1)";
         public string channel { get; set; }
         public decimal value  { get; set; }
         
-        
+        /*
+        public int isfloat {
+            get {
+				return this.isfloat;
+			}
+			set {
+				if (value >= 0 && value <= 1) {
+					this.isfloat = value;
+				} else  {
+					throw new ArgumentOutOfRangeException("Invalid value. Value must be between 0 and 1");
+				}
+			}
+        }
+        */
     }
 }
 "@
@@ -762,7 +775,7 @@ function Get-PrtgTableData {
 				
 				"sensors" = @("objid","type","name","tags","active","downtime","downtimetime","downtimesince","uptime","uptimetime","uptimesince","knowntime","cumsince","sensor","interval","lastcheck","lastup","lastdown","device","group","probe","grpdev","notifiesx","intervalx","access","dependency","probegroupdevice","status","message","priority","lastvalue","lastvalue_raw","upsens","downsens","downacksens","partialdownsens","warnsens","pausedsens","unusualsens","undefinedsens","totalsens","favorite","schedule","minigraph","comments","basetype","baselink","parentid")
 				
-				"channels" = @("objid","name","lastvalue","lastvalue_raw")
+				"channels" = @("name","lastvalue","lastvalue_raw")
 				
 				"todos" = @("objid","datetime","name","status","priority","message","active")
 				
