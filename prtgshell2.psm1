@@ -762,7 +762,7 @@ function Get-PrtgTableData {
 				
 				"sensors" = @("objid","type","name","tags","active","downtime","downtimetime","downtimesince","uptime","uptimetime","uptimesince","knowntime","cumsince","sensor","interval","lastcheck","lastup","lastdown","device","group","probe","grpdev","notifiesx","intervalx","access","dependency","probegroupdevice","status","message","priority","lastvalue","lastvalue_raw","upsens","downsens","downacksens","partialdownsens","warnsens","pausedsens","unusualsens","undefinedsens","totalsens","favorite","schedule","minigraph","comments","basetype","baselink","parentid")
 				
-				"channels" = @("name","lastvalue","lastvalue_raw")
+				"channels" = @("objid","name","lastvalue","lastvalue_raw")
 				
 				"todos" = @("objid","datetime","name","status","priority","message","active")
 				
