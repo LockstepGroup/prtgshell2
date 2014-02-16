@@ -9,7 +9,7 @@
 ###############################################################################
 
 
-Add-Type  -ReferencedAssemblies @(([System.Reflection.Assembly]::LoadWithPartialName("System.Web")).Location) -TypeDefinition @"
+Add-Type -ReferencedAssemblies @(([System.Reflection.Assembly]::LoadWithPartialName("System.Web")).Location) -TypeDefinition @"
 
 using System;
 using System.Net;
@@ -22,129 +22,6 @@ using System.Linq;
 using System.Web;
 
 namespace PrtgShell {
-	public class exexml {
-	
-		private int priority = 3;
-		private int exeresult = 0;
-		
-		public string Name { get; set; }
-		public string Tags { get; set; }
-		public int Priority {
-			get {
-				return this.priority;
-			}
-			set {
-				if (value > 0 && value <= 5) {
-					this.priority = value;
-				} else  {
-					throw new ArgumentOutOfRangeException("Invalid value. Value must be between 0 and 5");
-				}
-			}
-		}
-		public string Script { get; set; }
-		public string ExeParams { get; set; }
-		public bool Environment { get; set; }
-		public bool SecurityContext { get; set; }
-		public string Mutex { get; set; }
-		public int ExeResult {
-			get {
-				return this.exeresult;
-			}
-			set {
-				if (value > 0 && value <= 2) {
-					this.exeresult = value;
-				} else  {
-					throw new ArgumentOutOfRangeException("Invalid value. Value must be between 0 and 2");
-				}
-			}
-		}
-		public int ParentId { get; set; }
-		
-	}
-	
-	public class PrtgDevice {
-		public int objid { get; set; }
-		public string probe { get; set; }
-		public string group { get; set; }
-		public string device { get; set; }
-		public string host { get; set; }
-		public int downsens { get; set; }
-		public int partialdownsens { get; set; }
-		public int downacksens { get; set; }
-		public int upsens { get; set; }
-		public int warnsens { get; set; }
-		public int pausedsens { get; set; }
-		public int unusualsens { get; set; }
-		public int undefinedsens { get; set; }
-	}
-	
-	public class PrtgGroup {
-		public int objid { get; set; }
-		public string probe { get; set; }
-		public string group { get; set; }
-		public string name { get; set; }
-		public int downsens { get; set; }
-		public int partialdownsens { get; set; }
-		public int downacksens { get; set; }
-		public int upsens { get; set; }
-		public int warnsens { get; set; }
-		public int pausedsens { get; set; }
-		public int unusualsens { get; set; }
-		public int undefinedsens { get; set; }
-	}
-	
-	public class PrtgSensor {
-		private string SensorName = null;
-		private int priority = 3;
-	
-		public int objid { get; set; }
-		public int parentid { get; set; }
-		public string probe { get; set; }
-		public string group { get; set; }
-		public string device { get; set; }
-		public string sensor {
-			get {
-				return this.SensorName;
-			}
-			set {
-				this.SensorName = value;
-			}
-		}
-		public string name {
-			get {
-				return this.SensorName;
-			}
-			set {
-				this.SensorName = value;
-			}
-		}
-		public string tags { get; set; }
-		public string status { get; set; }
-		public string message { get; set; }
-		public string lastvalue { get; set; }
-		public string lastvalue_raw { get; set; }
-		public int Priority {
-			get {
-				return this.priority;
-			}
-			set {
-				if (value > 0 && value <= 5) {
-					this.priority = value;
-				} else  {
-					throw new ArgumentOutOfRangeException("Invalid value. Value must be between 0 and 5");
-				}
-			}
-		}
-		public bool favorite { get; set; }
-	}
-	
-	public class PrtgChannel {
-		public int objid { get; set; }
-		public string name { get; set; }
-		public string lastvalue { get; set; }
-		public decimal lastvalue_raw { get; set; }
-	}
-	
 	public class PrtgServer {
 		// can we rewrite the helper functions as methods in this class?
 		
@@ -300,7 +177,7 @@ namespace PrtgShell {
 		}
 	}
     
-    	public class PrtgSensorCreator {
+    public class PrtgSensorCreator {
 		// this is the class that will be created and populated to validate sensor creation
 		// is there really a point to having these things obfuscate the names
 		
@@ -582,6 +459,117 @@ Channel(1001,1)";
 		}
 		
     }
+	
+	
+	public class PrtgObject {
+		// all of the properties and methods here are used in
+		// probes, groups, devices, and sensors
+		
+		// these datatypes need to be refined
+		
+		private int priority = 3;
+		
+		public int objid { get; set; }
+		public string type { get; set; }
+		public string name { get; set; }
+		public string tags { get; set; }
+		public string active { get; set; }
+		public string probe { get; set; }
+		public string notifiesx { get; set; }
+		public string intervalx { get; set; }
+		public string access { get; set; }
+		public string dependency { get; set; }
+		public string probegroupdevice { get; set; }
+		public string status { get; set; }
+		public string message { get; set; }
+		public int Priority {
+			get {
+				return this.priority;
+			}
+			set {
+				if (value > 0 && value <= 5) {
+					this.priority = value;
+				} else  {
+					throw new ArgumentOutOfRangeException("Invalid value. Value must be between 0 and 5");
+				}
+			}
+		}
+		public string upsens { get; set; }
+		public string downsens { get; set; }
+		public string downacksens { get; set; }
+		public string partialdownsens { get; set; }
+		public string warnsens { get; set; }
+		public string pausedsens { get; set; }
+		public string unusualsens { get; set; }
+		public string undefinedsens { get; set; }
+		public string totalsens { get; set; }
+		public string favorite { get; set; }
+		public string schedule { get; set; }
+		public string comments { get; set; }
+		public string basetype { get; set; }
+		public string baselink { get; set; }
+		public string parentid { get; set; }
+	}
+	
+	public class PrtgProbe : PrtgObject {
+		// probes inherit everything from objects as well as the following
+		
+		public string condition { get; set; }
+		public string fold { get; set; }
+		public string groupnum { get; set; }
+		public string devicenum { get; set; }
+	}
+	
+	public class PrtgGroup : PrtgProbe {
+		// groups inherit everything from probes as well as the following
+		
+		public string group { get; set; }
+		public string location { get; set; }
+	}
+	
+	public class PrtgDevice : PrtgObject {
+		// probes inherit everything from objects as well as the following
+		
+		public string device { get; set; }
+		public string group { get; set; }
+		public string grpdev { get; set; }
+		public string deviceicon { get; set; }
+		public string host { get; set; }
+		public string icon { get; set; }
+		public string location { get; set; }
+	}
+	
+	public class PrtgSensor : PrtgObject {
+		// probes inherit everything from objects as well as the following
+		
+		public string device { get; set; }
+		public string group { get; set; }
+		public string grpdev { get; set; }
+		
+		public string downtime { get; set; }
+		public string downtimetime { get; set; }
+		public string downtimesince { get; set; }
+		public string uptime { get; set; }
+		public string uptimetime { get; set; }
+		public string uptimesince { get; set; }
+		public string knowntime { get; set; }
+		public string cumsince { get; set; }
+		public string sensor { get; set; }
+		public string interval { get; set; }
+		public string lastcheck { get; set; }
+		public string lastup { get; set; }
+		public string lastdown { get; set; }
+	}
+	
+	public class PrtgChannel {
+		// channels... are special
+		
+		public int objid { get; set; }
+		public string name { get; set; }
+		public string lastvalue { get; set; }
+		public decimal lastvalue_raw { get; set; }
+	}
+
 }
 "@
 <#
@@ -831,7 +819,7 @@ function Get-PrtgTableData {
 				
 				"sensors" = @("objid","type","name","tags","active","downtime","downtimetime","downtimesince","uptime","uptimetime","uptimesince","knowntime","cumsince","sensor","interval","lastcheck","lastup","lastdown","device","group","probe","grpdev","notifiesx","intervalx","access","dependency","probegroupdevice","status","message","priority","lastvalue","lastvalue_raw","upsens","downsens","downacksens","partialdownsens","warnsens","pausedsens","unusualsens","undefinedsens","totalsens","favorite","schedule","minigraph","comments","basetype","baselink","parentid")
 				
-				"channels" = @("name","lastvalue","lastvalue_raw")
+				"channels" = @("objid","name","lastvalue","lastvalue_raw")
 				
 				"todos" = @("objid","datetime","name","status","priority","message","active")
 				
