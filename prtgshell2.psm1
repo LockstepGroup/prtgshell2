@@ -508,23 +508,79 @@ Channel(1001,1)";
 	}
 
     public class NewChannel {
-        public string channel { get; set; }
-        public decimal value  { get; set; }
-        
-        /*
-        public int isfloat {
-            get {
-				return this.isfloat;
+	
+		// several of these need some validation
+		
+        public string channelname { get; set; }
+        public decimal channelvalue { get; set; }
+		public bool isfloat { get; set; }
+		
+		private List<string> StandardUnits = new List<string>(new string[] {
+			"BytesBandwidth",
+            "BytesMemory",
+            "BytesDisk",
+            "Temperature",
+            "Percent",
+            "TimeResponse",
+            "TimeSeconds",
+            "Count",
+            "CPU",
+            "BytesFile",
+            "SpeedDisk",
+            "SpeedNet",
+            "TimeHours"
+        });
+		
+		private string ChannelUnitName = null;
+		
+		private string ChannelUnit = null;
+		public string channelunit {
+			get {
+				return this.ChannelUnit;
 			}
 			set {
-				if (value >= 0 && value <= 1) {
-					this.isfloat = value;
-				} else  {
-					throw new ArgumentOutOfRangeException("Invalid value. Value must be between 0 and 1");
+				if (StandardUnits.Contains(value, StringComparer.OrdinalIgnoreCase)) {
+					this.ChannelUnitName = value;
+					this.ChannelUnit = null;
+				} else {
+					this.ChannelUnitName = "Custom";
+					this.ChannelUnit = value;
 				}
 			}
-        }
-        */
+		}
+		
+		// this is just here for testing the logic
+		// if this.ChannelUnit = null, don't return the customunit element
+		public string ShowChannel () {
+			return "UNIT: " + this.ChannelUnitName + "; CUSTOMUNIT: " + this.ChannelUnit;
+		}
+		
+		
+		public bool showchart { get; set; }
+		
+		public string errormessage { get; set; }
+		
+		public string maxwarnthreshold { get; set; } // these thresholds probably need to be decimals, floats, or ints (rather than strings)
+		public string minwarnthreshold { get; set; }
+		public string maxerrorthreshold { get; set; }
+		public string minerrorthreshold { get; set; }
+		
+		// private bool limitmode = false; // if any of the thresholds above are set, this needs to be flipped to true
+		
+		public string channelmode { get; set; } // absolute or difference
+		
+		public string speedsize { get; set; } // [ValidateSet("One","Kilo","Mega","Giga","Tera","Byte","KiloByte","MegaByte","GigaByte","TeraByte","Bit","KiloBit","MegaBit","GigaBit","TeraBit")]
+		public string decimalmode { get; set; } // auto, all (there's a third value here, "custom", that isn't currently configurable through the exexml api)
+		
+		public bool iswarning { get; set; }
+		public string valuelookup { get; set; }
+		
+		// constructor
+		public NewChannel () {
+			// set defaults here
+			// you can also overload this construct to pass params in using new-object
+		}
+		
     }
 }
 "@
