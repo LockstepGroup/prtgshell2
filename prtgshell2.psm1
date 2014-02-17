@@ -22,7 +22,6 @@ using System.Linq;
 using System.Web;
 
 namespace PrtgShell {
-
 	public class PrtgServer {
 		// can we rewrite the helper functions as methods in this class?
 		
