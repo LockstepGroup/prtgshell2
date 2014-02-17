@@ -457,39 +457,8 @@ Channel(1001,1)";
 			// set defaults here
 			// you can also overload this construct to pass params in using new-object
 		}
-		
-    public class XmlResult {
-        public string channel { get; set; }
-        public decimal resultvalue { get; set; }
-        public string unit { get; set; }
-        public string customunit { get; set; }
-        public string speedsize { get; set; }
-        public string volumesize { get; set; }
-        public string speedtime { get; set; }
-        public string mode { get; set; }
-        public bool isfloat { get; set; }
-        public string decimalmode { get; set; }
-        public bool warning { get; set; }
-        public bool showchart { get; set; }
-        public bool showtable { get; set; }
-        public int limitmaxerror { get; set; }
-        public int limitmaxwarning { get; set; }
-        public int limitminwarning { get; set; }
-        public int limitminerror { get; set; }
-        public string limiterrormsg { get; set; }
-        public string limitwarningmsg { get; set; }
-        public bool limitmode { get; set; }
-        public string valuelookup { get; set; }
-
-        public XmlResult () {
-			this.isfloat = false;
-            this.warning = false;
-            this.showchart = true;
-            this.showtable = true;
-            this.limitmode = false;
-        }
     }
-	
+
 	
 	public class PrtgBaseObject {
 		public int objid { get; set; }
@@ -647,27 +616,108 @@ Channel(1001,1)";
 		public decimal nextrun { get; set; }
 	}
 
+// ---------------------- Used for Setting EXEXML results ---------------------- //
+
+    public class XmlResult {
+        public string channel { get; set; }
+        public decimal resultvalue { get; set; }
+
+        public string unit { get; set; } 
+        // ValidateSet: BytesBandwidth, BytesMemory, BytesDisk, Temperature, Percent, TimeResponse, TimeSeconds, Count, CPU (*), BytesFile, SpeedDisk, SpeedNet, TimeHours
+        // Custom set for anything else
+
+        public string customunit { get; set; }
+
+        public string speedsize { get; set; }
+        // ValidateSet: One, Kilo, Mega, Giga, Tera, Byte, KiloByte, MegaByte, GigaByte, TeraByte, Bit, KiloBit, MegaBit, GigaBit, TeraBit
+
+        public string volumesize { get; set; }
+        // ValidateSet: One, Kilo, Mega, Giga, Tera, Byte, KiloByte, MegaByte, GigaByte, TeraByte, Bit, KiloBit, MegaBit, GigaBit, TeraBit
+
+        public string speedtime { get; set; }
+        // ValidateSet: Second, Minute, Hour, Day
+
+        public string mode { get; set; }
+        // ValidateSet: Absolute, Difference
+
+        public bool isfloat { get; set; }
+
+        public string decimalmode { get; set; }
+        //ValidateSet: Auto, All
+
+        public bool warning { get; set; }
+        public bool showchart { get; set; }
+        public bool showtable { get; set; }
+        public int limitmaxerror { get; set; }
+        public int limitmaxwarning { get; set; }
+        public int limitminwarning { get; set; }
+        public int limitminerror { get; set; }
+        public string limiterrormsg { get; set; }
+        public string limitwarningmsg { get; set; }
+        public bool limitmode { get; set; }
+        public string valuelookup { get; set; }
+
+        public XmlResult () {
+			this.isfloat = false;
+            this.warning = false;
+            this.showchart = true;
+            this.showtable = true;
+            this.limitmode = false;
+        }
+    }
+
+    public class ExeXML {
+        public string text { get; set; }
+        // max of 2000 characters
+
+        public bool error { get; set; }
+
+        public void AddChannel (PrtgShell.XmlResult Result) {
+        }
+                /*
+        public string AddChannel (PrtgShell.XmlResult Result, bool primary) {
+        }
+
+        
+        public string UrlBuilder (string Action) {
+		
+			if (Action.StartsWith("/")) Action = Action.Substring(1);
+			
+			string[] Pieces = new string[4];
+			Pieces[0] = this.ApiUrl;
+			Pieces[1] = Action;
+			Pieces[2] = "?";
+			Pieces[3] = this.AuthString;
+			
+			string CompletedString = string.Join ("",Pieces);
+			this.urlhistory.Push(CompletedString);
+			return CompletedString;
+		}
+		
+		public string UrlBuilder (string Action, string[] QueryParameters) {
+		
+			if (Action.StartsWith("/")) Action = Action.Substring(1);
+			
+			string[] Pieces = new string[4];
+			Pieces[0] = this.ApiUrl;
+			Pieces[1] = Action;
+			Pieces[2] = "?";
+			Pieces[3] = this.AuthString;
+			
+			var FullString = new string[Pieces.Length + QueryParameters.Length];
+			Pieces.CopyTo(FullString, 0);
+			QueryParameters.CopyTo(FullString, Pieces.Length);
+			
+			string CompletedString = string.Join ("",FullString);
+			this.urlhistory.Push(CompletedString);
+			return CompletedString;
+		}
+        */
+    }
+
+// ----------------------------------------------------------------------------- //
 }
 "@
-<#
-
-get {
-				return this.sensor_priority;
-			}
-			set {
-				if (value > 0 && value <= 5) {
-					this.sensor_priority = value;
-				} else  {
-					throw new ArgumentOutOfRangeException("Invalid value. Value must be between 0 and 5");
-				}
-			}
-    $StandardUnits = @("BytesBandwidth","BytesMemory","BytesDisk","Temperature","Percent","TimeResponse","TimeSeconds","Custom","Count","CPU","BytesFile","SpeedDisk","SpeedNet","TimeHours")
-    if ($StandardUnits -contains $Unit) {
-        $Result += "    <unit>$Unit</unit>`n"
-    } elseif ($Unit) {
-        $Result += "    <unit>custom</unit>`n"
-        $Result += "    <customunit>$Unit</customunit>`n"
-#>
 
 ###############################################################################
 
