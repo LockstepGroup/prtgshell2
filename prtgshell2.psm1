@@ -458,6 +458,36 @@ Channel(1001,1)";
 			// you can also overload this construct to pass params in using new-object
 		}
 		
+    public class XmlResult {
+        public string channel { get; set; }
+        public decimal resultvalue { get; set; }
+        public string unit { get; set; }
+        public string customunit { get; set; }
+        public string speedsize { get; set; }
+        public string volumesize { get; set; }
+        public string speedtime { get; set; }
+        public string mode { get; set; }
+        public bool isfloat { get; set; }
+        public string decimalmode { get; set; }
+        public bool warning { get; set; }
+        public bool showchart { get; set; }
+        public bool showtable { get; set; }
+        public int limitmaxerror { get; set; }
+        public int limitmaxwarning { get; set; }
+        public int limitminwarning { get; set; }
+        public int limitminerror { get; set; }
+        public string limiterrormsg { get; set; }
+        public string limitwarningmsg { get; set; }
+        public bool limitmode { get; set; }
+        public string valuelookup { get; set; }
+
+        public XmlResult () {
+			this.isfloat = false;
+            this.warning = false;
+            this.showchart = true;
+            this.showtable = true;
+            this.limitmode = false;
+        }
     }
 	
 	
