@@ -672,14 +672,16 @@ Channel(1001,1)";
 
         public bool error { get; set; }
 
-        public void AddChannel (PrtgShell.XmlResult Result) {
-        }
-                /*
-        public string AddChannel (PrtgShell.XmlResult Result, bool primary) {
-        }
+    }
 
-        
-        public string UrlBuilder (string Action) {
+// ----------------------------------------------------------------------------- //
+}
+"@
+
+###############################################################################
+
+<#
+		public string UrlBuilder (string Action) {
 		
 			if (Action.StartsWith("/")) Action = Action.Substring(1);
 			
@@ -712,14 +714,7 @@ Channel(1001,1)";
 			this.urlhistory.Push(CompletedString);
 			return CompletedString;
 		}
-        */
-    }
-
-// ----------------------------------------------------------------------------- //
-}
-"@
-
-###############################################################################
+#>
 
 
 
