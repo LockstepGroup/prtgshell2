@@ -746,7 +746,14 @@ function Get-PrtgServer {
 		$Data = $QueryObject.Data
 
 		$data.status.ChildNodes | % {
-			$PrtgServerObject.$($_.Name) = $_.InnerText
+			if ($_.Name -ne "IsAdminUser") {
+				$PrtgServerObject.$($_.Name) = $_.InnerText
+			} else {
+				# TODO
+				# there's at least four properties that need to be treated this way
+				# this is because this property returns a text "true" or "false", which powershell always evaluates as "true"
+				$PrtgServerObject.$($_.Name) = [System.Convert]::ToBoolean($_.InnerText)
+			}
 		}
 		
         $global:PrtgServerObject = $PrtgServerObject
