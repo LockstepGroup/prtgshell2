@@ -1182,10 +1182,25 @@ function New-PrtgSensor {
 
     PROCESS {
 
-    $Url = $PrtgServerObject.UrlBuilder("addsensor5.htm")
+        $Url = $PrtgServerObject.UrlBuilder("addsensor5.htm")
 
-    HelperHTTPPostCommand $Url $PrtgObject.QueryString | Out-Null
+        HelperHTTPPostCommand $Url $PrtgObject.QueryString | Out-Null
 
+    }
+}
+
+###############################################################################
+
+function New-PrtgResult {
+    PARAM (
+        [Parameter(Mandatory=$True,Position=0)]
+        [string]$Channel
+    )
+
+    BEGIN {
+    }
+
+    PROCESS {
     }
 }
 
