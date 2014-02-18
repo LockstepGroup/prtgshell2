@@ -1230,6 +1230,73 @@ function New-PrtgSensor {
 ###############################################################################
 
 function New-PrtgResult {
+    <#
+		.SYNOPSIS
+			Creates a PrtgShell.XmlResult object for use in ExeXml output.
+			
+		.DESCRIPTION
+			Creates a PrtgShell.XmlResult object for use in ExeXml output.
+		
+		.PARAMETER Channel
+			Name of the channel.
+			
+		.PARAMETER Value
+            Integer value of the channel.
+		
+		.PARAMETER Unit
+			Unit of the value.
+			
+		.PARAMETER SpeedSize
+			Size of the value given, used for speed measurements.
+			
+		.PARAMETER VolumeSize
+			Size of the value given, used for disk/file measurements.
+			
+		.PARAMETER SpeedTime
+			Interval for displaying a speed measurement.
+
+		.PARAMETER Difference
+            Set the value as a difference value, as opposed to absolute.
+
+        .PARAMETER DecimalMode
+            Set the decimal display mode.
+
+        .PARAMETER Warning
+            Enable warning state for channel.
+
+        .PARAMETER IsFloat
+            Specify the value is a float, instead of integer.
+
+        .PARAMETER ShowChart
+            Show the channel in the charts section of the web ui.
+
+        .PARAMETER ShowTable
+            Show the channel in the table section of the web ui.
+
+        .PARAMETER LimitMaxError
+            Set the maximum value before a channel goes into an error state.  Only applies the first time a channel is reported to as sensor.
+
+        .PARAMETER LimitMinError
+            Set the minimum value before a channel goes into an error state.  Only applies the first time a channel is reported to as sensor.
+
+        .PARAMETER LimitMaxWarning
+            Set the maximum value before a channel goes into a warning state.  Only applies the first time a channel is reported to as sensor.
+
+        .PARAMETER LimitMinWarning
+            Set the minimum value before a channel goes into a warning state.  Only applies the first time a channel is reported to as sensor.
+
+        .PARAMETER LimitErrorMsg
+            Set the message reported when the channel goes into an error state.  Only applies the first time a channel is reported to as sensor.
+
+        .PARAMETER LimitMaxError
+            Set the message reported when the channel goes into a warning state.  Only applies the first time a channel is reported to as sensor.
+
+        .PARAMETER LimitMode
+            Set if the Limits defined are active.
+
+        .PARAMETER ValueLookup
+            Set a custom lookup file for the channel.
+	#>
     PARAM (
         [Parameter(Mandatory=$True,Position=0)]
         [string]$Channel,
@@ -1241,14 +1308,17 @@ function New-PrtgResult {
         [string]$Unit,
 
         [Parameter(Mandatory=$False)]
+        [Alias('ss')]
         [ValidateSet("one","kilo","mega","giga","tera","byte","kilobyte","megabyte","gigabyte","terabyte","bit","kilobit","megabit","gigabit","terabit")]
         [string]$SpeedSize,
 
         [Parameter(Mandatory=$False)]
+        [Alias('vs')]
         [ValidateSet("one","kilo","mega","giga","tera","byte","kilobyte","megabyte","gigabyte","terabyte","bit","kilobit","megabit","gigabit","terabit")]
         [string]$VolumeSize,
 
         [Parameter(Mandatory=$False)]
+        [Alias('st')]
         [ValidateSet("second","minute","hour","day")]
         [string]$SpeedTime,
 
@@ -1256,6 +1326,7 @@ function New-PrtgResult {
         [switch]$Difference,
 
         [Parameter(Mandatory=$False)]
+        [Alias('dm')]
         [ValidateSet("auto","all")]
         [string]$DecimalMode,
 
@@ -1266,9 +1337,11 @@ function New-PrtgResult {
         [switch]$IsFloat,
 
         [Parameter(Mandatory=$False)]
+        [Alias('sc')]
         [switch]$ShowChart,
 
         [Parameter(Mandatory=$False)]
+        [Alias('st')]
         [switch]$ShowTable,
 
         [Parameter(Mandatory=$False)]
@@ -1290,9 +1363,11 @@ function New-PrtgResult {
         [string]$LimitWarningMsg,
 
         [Parameter(Mandatory=$False)]
+        [Alias('lm')]
         [switch]$LimitMode,
 
         [Parameter(Mandatory=$False)]
+        [Alias('vl')]
         [string]$ValueLookup
     )
 
