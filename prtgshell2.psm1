@@ -175,6 +175,44 @@ namespace PrtgShell {
 			ServicePointManager.Expect100Continue = true;
 			ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3;
 		}
+		
+		
+		private System.Uri prtguri;
+		
+		// this likely doesn't need to be public
+		// or exist, this is just for peeking
+		public System.Uri PrtgUri {
+			get { return this.prtguri; }
+		}
+		
+		private Hashtable parsed_querystring;
+		
+		public void SetPrtgUri (string serverstring) {
+			this.prtguri = new System.Uri(serverstring);
+			
+			this.Server = this.prtguri.Host;
+			this.Port = this.prtguri.Port;
+			this.Protocol = this.prtguri.Scheme;
+			
+			NameValueCollection querystring_nvc = HttpUtility.ParseQueryString(this.prtguri.Query);
+			
+			this.parsed_querystring = new Hashtable();
+			
+			foreach (string key in querystring_nvc) {
+				this.parsed_querystring.Add(key,querystring_nvc[key]);
+			}
+			
+			// this syntax is all wrong
+			// if the hashtable includes these two values, set them
+			//if (this.parsed_querystring.username) {
+			//	this.UserName = this.parsed_querystring.username;
+			//}
+			
+			//if (this.parsed_querystring.passhash) {
+			//	this.PassHash = this.parsed_querystring.passhash;
+			//}
+		}
+		
 	}
     
     public class PrtgSensorCreator {
