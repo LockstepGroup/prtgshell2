@@ -637,8 +637,8 @@ Channel(1001,1)";
         public string speedtime { get; set; }
         // ValidateSet: Second, Minute, Hour, Day
 
-        public string mode { get; set; }
-        // ValidateSet: Absolute, Difference
+        public bool mode { get; set; }
+        // 0 = Absolute, 1 = Difference
 
         public bool isfloat { get; set; }
 
@@ -1194,13 +1194,98 @@ function New-PrtgSensor {
 function New-PrtgResult {
     PARAM (
         [Parameter(Mandatory=$True,Position=0)]
-        [string]$Channel
+        [string]$Channel,
+
+        [Parameter(Mandatory=$True,Position=1)]
+        [decimal]$Value,
+
+        [Parameter(Mandatory=$False)]
+        [string]$Unit,
+
+        [Parameter(Mandatory=$False)]
+        [ValidateSet("one","kilo","mega","giga","tera","byte","kilobyte","megabyte","gigabyte","terabyte","bit","kilobit","megabit","gigabit","terabit")]
+        [string]$SpeedSize,
+
+        [Parameter(Mandatory=$False)]
+        [ValidateSet("one","kilo","mega","giga","tera","byte","kilobyte","megabyte","gigabyte","terabyte","bit","kilobit","megabit","gigabit","terabit")]
+        [string]$VolumeSize,
+
+        [Parameter(Mandatory=$False)]
+        [ValidateSet("second","minute","hour","day")]
+        [string]$SpeedTime,
+
+        [Parameter(Mandatory=$False)]
+        [switch]$Difference,
+
+        [Parameter(Mandatory=$False)]
+        [ValidateSet("auto","all")]
+        [string]$DecimalMode,
+
+        [Parameter(Mandatory=$False)]
+        [switch]$Warning,
+
+        [Parameter(Mandatory=$False)]
+        [switch]$IsFloat,
+
+        [Parameter(Mandatory=$False)]
+        [switch]$ShowChart,
+
+        [Parameter(Mandatory=$False)]
+        [switch]$ShowTable,
+
+        [Parameter(Mandatory=$False)]
+        [int]$LimitMaxError,
+
+        [Parameter(Mandatory=$False)]
+        [int]$LimitMinError,
+
+        [Parameter(Mandatory=$False)]
+        [int]$LimitMaxWarning,
+
+        [Parameter(Mandatory=$False)]
+        [int]$LimitMinWarning,
+
+        [Parameter(Mandatory=$False)]
+        [string]$LimitErrorMsg,
+
+        [Parameter(Mandatory=$False)]
+        [string]$LimitWarningMsg,
+
+        [Parameter(Mandatory=$False)]
+        [switch]$LimitMode,
+
+        [Parameter(Mandatory=$False)]
+        [string]$ValueLookup
     )
 
     BEGIN {
     }
 
     PROCESS {
+        $ReturnObject = New-Object PrtgShell.XmlResult
+
+        $ReturnObject.channel         = $Channel
+        $ReturnObject.resultvalue     = $Value
+        $ReturnObject.unit            = $Unit
+        $ReturnObject.speedsize       = $SpeedSize
+        $ReturnObject.volumesize      = $VolumeSize
+        $ReturnObject.speedtime       = $SpeedTime
+        $ReturnObject.mode            = $Mode
+        $ReturnObject.decimalmode     = $DecimalMode
+        $ReturnObject.Warning         = $Warning
+        $ReturnObject.isfloat         = $IsFloat
+        $ReturnObject.showchart       = $ShowChart
+        $ReturnObject.showtable       = $ShowTable
+        $ReturnObject.limitmaxerror   = $LimitMaxError
+        $ReturnObject.limitminerror   = $LimitMinError
+        $ReturnObject.limitmaxwarning = $LimitMaxWarning
+        $ReturnObject.limitminwarning = $LimitMinWarning
+        $ReturnObject.limiterrormsg   = $LimitErrorMsg
+        $ReturnObject.limitwarningmsg = $LimitWarningMsg
+        $ReturnObject.limitmode       = $LimitMode
+        $ReturnObject.valuelookup     = $ValueLookup
+
+        return $ReturnObject
     }
 }
 
