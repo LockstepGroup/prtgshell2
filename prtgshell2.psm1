@@ -422,81 +422,6 @@ Channel(1001,1)";
 		}
 	}
 
-    public class NewChannel {
-	
-		// several of these need some validation
-		
-        public string channelname { get; set; }
-        public decimal channelvalue { get; set; }
-		public bool isfloat { get; set; }
-		
-		private List<string> StandardUnits = new List<string>(new string[] {
-			"BytesBandwidth",
-            "BytesMemory",
-            "BytesDisk",
-            "Temperature",
-            "Percent",
-            "TimeResponse",
-            "TimeSeconds",
-            "Count",
-            "CPU",
-            "BytesFile",
-            "SpeedDisk",
-            "SpeedNet",
-            "TimeHours"
-        });
-		
-		private string ChannelUnitName = null;
-		
-		private string ChannelUnit = null;
-		public string channelunit {
-			get {
-				return this.ChannelUnit;
-			}
-			set {
-				if (StandardUnits.Contains(value, StringComparer.OrdinalIgnoreCase)) {
-					this.ChannelUnitName = value;
-					this.ChannelUnit = null;
-				} else {
-					this.ChannelUnitName = "Custom";
-					this.ChannelUnit = value;
-				}
-			}
-		}
-		
-		// this is just here for testing the logic
-		// if this.ChannelUnit = null, don't return the customunit element
-		public string ShowChannel () {
-			return "UNIT: " + this.ChannelUnitName + "; CUSTOMUNIT: " + this.ChannelUnit;
-		}
-		
-		
-		public bool showchart { get; set; }
-		
-		public string errormessage { get; set; }
-		
-		public string maxwarnthreshold { get; set; } // these thresholds probably need to be decimals, floats, or ints (rather than strings)
-		public string minwarnthreshold { get; set; }
-		public string maxerrorthreshold { get; set; }
-		public string minerrorthreshold { get; set; }
-		
-		// private bool limitmode = false; // if any of the thresholds above are set, this needs to be flipped to true
-		
-		public string channelmode { get; set; } // absolute or difference
-		
-		public string speedsize { get; set; } // [ValidateSet("One","Kilo","Mega","Giga","Tera","Byte","KiloByte","MegaByte","GigaByte","TeraByte","Bit","KiloBit","MegaBit","GigaBit","TeraBit")]
-		public string decimalmode { get; set; } // auto, all (there's a third value here, "custom", that isn't currently configurable through the exexml api)
-		
-		public bool iswarning { get; set; }
-		public string valuelookup { get; set; }
-		
-		// constructor
-		public NewChannel () {
-			// set defaults here
-			// you can also overload this construct to pass params in using new-object
-		}
-    }
-
 	
 	public class PrtgBaseObject {
 		public int objid { get; set; }
@@ -660,28 +585,118 @@ Channel(1001,1)";
         public string channel { get; set; }
         public decimal resultvalue { get; set; }
 
-        public string unit { get; set; } 
-        // ValidateSet: BytesBandwidth, BytesMemory, BytesDisk, Temperature, Percent, TimeResponse, TimeSeconds, Count, CPU (*), BytesFile, SpeedDisk, SpeedNet, TimeHours
-        // Custom set for anything else
-
+		List<string> ValidUnit = new List<string>(new string[] {
+			"BytesBandwidth",
+			"BytesMemory",
+			"BytesDisk",
+			"Temperature",
+			"Percent",
+			"TimeResponse",
+			"TimeSeconds",
+			"Count",
+			"CPU",
+			"BytesFile",
+			"SpeedDisk",
+			"SpeedNet",
+			"TimeHours"
+		});
+		
+		private string Unit;
+		
+        public string unit {
+			get {
+				return this.Unit;
+			}
+			set {
+				if (ValidUnit.FindIndex(x => x.Equals(value, StringComparison.OrdinalIgnoreCase) ) != -1) {
+					this.Unit = value;
+				} else  {
+					this.Unit = "Custom";
+					this.customunit = value;
+				}
+			}
+		}
+		
         public string customunit { get; set; }
 
-        public string speedsize { get; set; }
-        // ValidateSet: One, Kilo, Mega, Giga, Tera, Byte, KiloByte, MegaByte, GigaByte, TeraByte, Bit, KiloBit, MegaBit, GigaBit, TeraBit
+		
+		
+		
+		List<string> ValidSpeedVolumeSize = new List<string>(new string[] { "One","Kilo","Mega","Giga","Tera","Byte","KiloByte","MegaByte","GigaByte","TeraByte","Bit","KiloBit","MegaBit","GigaBit","TeraBit" });
+		
+		private string SpeedSize;
+        public string speedsize {
+			get {
+				return this.SpeedSize;
+			}
+			set {
+				if (ValidSpeedVolumeSize.FindIndex(x => x.Equals(value, StringComparison.OrdinalIgnoreCase) ) != -1) {
+					this.SpeedSize = value;
+				} else  {
+					throw new ArgumentOutOfRangeException("Invalid value. Valid values are: " + string.Join(", ", ValidSpeedVolumeSize.ToArray()));
+				}
+			}
+		}
 
-        public string volumesize { get; set; }
-        // ValidateSet: One, Kilo, Mega, Giga, Tera, Byte, KiloByte, MegaByte, GigaByte, TeraByte, Bit, KiloBit, MegaBit, GigaBit, TeraBit
+		private string VolumeSize;
+        public string volumesize {
+			get {
+				return this.VolumeSize;
+			}
+			set {
+				if (ValidSpeedVolumeSize.FindIndex(x => x.Equals(value, StringComparison.OrdinalIgnoreCase) ) != -1) {
+					this.VolumeSize = value;
+				} else  {
+					throw new ArgumentOutOfRangeException("Invalid value. Valid values are: " + string.Join(", ", ValidSpeedVolumeSize.ToArray()));
+				}
+			}
+		}
 
-        public string speedtime { get; set; }
-        // ValidateSet: Second, Minute, Hour, Day
+		
+		
+		
+		List<string> ValidSpeedTime = new List<string>(new string[] { "Second","Minute","Hour","Day" });
+		
+		private string SpeedTime;
+        public string speedtime {
+			get {
+				return this.SpeedTime;
+			}
+			set {
+				if (ValidSpeedTime.FindIndex(x => x.Equals(value, StringComparison.OrdinalIgnoreCase) ) != -1) {
+					this.SpeedTime = value;
+				} else  {
+					throw new ArgumentOutOfRangeException("Invalid value. Valid values are: " + string.Join(", ", ValidSpeedTime.ToArray()));
+				}
+			}
+		}
+		
+		
 
         public bool mode { get; set; }
         // 0 = Absolute, 1 = Difference
 
         public bool isfloat { get; set; }
 
-        public string decimalmode { get; set; }
-        //ValidateSet: Auto, All
+		
+		
+		List<string> ValidDecimalMode = new List<string>(new string[] { "Auto","All" });
+		
+		private string DecimalMode;
+        public string decimalmode {
+			get {
+				return this.DecimalMode;
+			}
+			set {
+				if (ValidDecimalMode.FindIndex(x => x.Equals(value, StringComparison.OrdinalIgnoreCase) ) != -1) {
+					this.DecimalMode = value;
+				} else  {
+					throw new ArgumentOutOfRangeException("Invalid value. Valid values are: " + string.Join(", ", ValidDecimalMode.ToArray()));
+				}
+			}
+		}
+		
+		
 
         public bool warning { get; set; }
         public bool showchart { get; set; }
@@ -705,8 +720,20 @@ Channel(1001,1)";
     }
 
     public class ExeXML {
-        public string text { get; set; }
-        // max of 2000 characters
+		private string TextMessage;
+		
+        public string text {
+			get {
+				return this.TextMessage;
+			}
+			set {
+				if (value.Length > 2000) {
+					this.TextMessage = value;
+				} else  {
+					throw new ArgumentOutOfRangeException("Invalid value. Maximum length is 2000 characters.");
+				}
+			}
+		}
 
         public bool error { get; set; }
 
