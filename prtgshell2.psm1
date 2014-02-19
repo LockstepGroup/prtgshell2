@@ -741,15 +741,15 @@ Channel(1001,1)";
     }
 
     public class ExeXML {
-		private string TextMessage;
+		private string Text;
 		
         public string text {
 			get {
-				return this.TextMessage;
+				return this.Text;
 			}
 			set {
 				if (value.Length > 2000) {
-					this.TextMessage = value;
+					this.Text = value;
 				} else  {
 					throw new ArgumentOutOfRangeException("Invalid value. Maximum length is 2000 characters.");
 				}
@@ -757,7 +757,18 @@ Channel(1001,1)";
 		}
 
         public bool error { get; set; }
-
+		
+		// should this be read-only?
+		// does there need to be a RemoveChannel method?
+		public List<PrtgShell.XmlResult> channels { get; set; }
+		
+		public void AddChannel (PrtgShell.XmlResult channel) {
+			this.channels.Add(channel);
+		}
+		
+		public ExeXML () {
+			this.channels = new List<PrtgShell.XmlResult>();
+		}
     }
 
 // ----------------------------------------------------------------------------- //
