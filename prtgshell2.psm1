@@ -608,7 +608,7 @@ Channel(1001,1)";
 				return this.Unit;
 			}
 			set {
-				if (ValidUnit.FindIndex(x => x.Equals(value, StringComparison.OrdinalIgnoreCase) ) != -1) {
+				if ((ValidUnit.FindIndex(x => x.Equals(value, StringComparison.OrdinalIgnoreCase) ) != -1) || String.IsNullOrEmpty(value)) {
 					this.Unit = value;
 				} else  {
 					this.Unit = "Custom";
@@ -622,7 +622,23 @@ Channel(1001,1)";
 		
 		
 		
-		List<string> ValidSpeedVolumeSize = new List<string>(new string[] { "One","Kilo","Mega","Giga","Tera","Byte","KiloByte","MegaByte","GigaByte","TeraByte","Bit","KiloBit","MegaBit","GigaBit","TeraBit" });
+		List<string> ValidSpeedVolumeSize = new List<string>(new string[] {
+			"One",
+			"Kilo",
+			"Mega",
+			"Giga",
+			"Tera",
+			"Byte",
+			"KiloByte",
+			"MegaByte",
+			"GigaByte",
+			"TeraByte",
+			"Bit",
+			"KiloBit",
+			"MegaBit",
+			"GigaBit",
+			"TeraBit"
+		});
 		
 		private string SpeedSize;
         public string speedsize {
@@ -630,7 +646,7 @@ Channel(1001,1)";
 				return this.SpeedSize;
 			}
 			set {
-				if (ValidSpeedVolumeSize.FindIndex(x => x.Equals(value, StringComparison.OrdinalIgnoreCase) ) != -1) {
+				if ((ValidSpeedVolumeSize.FindIndex(x => x.Equals(value, StringComparison.OrdinalIgnoreCase) ) != -1) || String.IsNullOrEmpty(value)) {
 					this.SpeedSize = value;
 				} else  {
 					throw new ArgumentOutOfRangeException("Invalid value. Valid values are: " + string.Join(", ", ValidSpeedVolumeSize.ToArray()));
@@ -644,7 +660,7 @@ Channel(1001,1)";
 				return this.VolumeSize;
 			}
 			set {
-				if (ValidSpeedVolumeSize.FindIndex(x => x.Equals(value, StringComparison.OrdinalIgnoreCase) ) != -1) {
+				if ((ValidSpeedVolumeSize.FindIndex(x => x.Equals(value, StringComparison.OrdinalIgnoreCase) ) != -1) || String.IsNullOrEmpty(value)) {
 					this.VolumeSize = value;
 				} else  {
 					throw new ArgumentOutOfRangeException("Invalid value. Valid values are: " + string.Join(", ", ValidSpeedVolumeSize.ToArray()));
@@ -655,7 +671,12 @@ Channel(1001,1)";
 		
 		
 		
-		List<string> ValidSpeedTime = new List<string>(new string[] { "Second","Minute","Hour","Day" });
+		List<string> ValidSpeedTime = new List<string>(new string[] {
+			"Second",
+			"Minute",
+			"Hour",
+			"Day"
+		});
 		
 		private string SpeedTime;
         public string speedtime {
@@ -663,7 +684,7 @@ Channel(1001,1)";
 				return this.SpeedTime;
 			}
 			set {
-				if (ValidSpeedTime.FindIndex(x => x.Equals(value, StringComparison.OrdinalIgnoreCase) ) != -1) {
+				if ((ValidSpeedTime.FindIndex(x => x.Equals(value, StringComparison.OrdinalIgnoreCase) ) != -1) || String.IsNullOrEmpty(value)) {
 					this.SpeedTime = value;
 				} else  {
 					throw new ArgumentOutOfRangeException("Invalid value. Valid values are: " + string.Join(", ", ValidSpeedTime.ToArray()));
@@ -688,7 +709,7 @@ Channel(1001,1)";
 				return this.DecimalMode;
 			}
 			set {
-				if (ValidDecimalMode.FindIndex(x => x.Equals(value, StringComparison.OrdinalIgnoreCase) ) != -1) {
+				if ((ValidDecimalMode.FindIndex(x => x.Equals(value, StringComparison.OrdinalIgnoreCase) ) != -1) || String.IsNullOrEmpty(value)) {
 					this.DecimalMode = value;
 				} else  {
 					throw new ArgumentOutOfRangeException("Invalid value. Valid values are: " + string.Join(", ", ValidDecimalMode.ToArray()));
@@ -1368,7 +1389,7 @@ function New-PrtgResult {
         [switch]$ShowChart,
 
         [Parameter(Mandatory=$False)]
-        [Alias('st')]
+        #[Alias('st')] # also the alias to "speedtime"
         [switch]$ShowTable,
 
         [Parameter(Mandatory=$False)]
