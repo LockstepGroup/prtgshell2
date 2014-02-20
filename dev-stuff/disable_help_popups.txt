@@ -1,0 +1,27 @@
+https://h.jsanders.us/api/setshowhelpstatus.htm?action=0&page=sensor.htm
+
+which pages need to have this turned off?
+
+sensor.htm
+device.htm
+group.htm
+log.htm
+sensors.htm
+devices.htm
+probenode.htm
+libraries.htm
+library.htm
+alarms.htm
+maps.htm
+map.htm
+reports.htm
+report.htm
+tickets.htm
+ticket.htm
+setup.htm
+myaccount.htm
+systemsetup.htm
+downloads.htm
+autoupdate.htm
+status.htm
+dependencies_simple.htm
