@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Xml;
+using System.Xml.Linq;
 using System.Text;
 
 namespace PrtgShell {
@@ -71,5 +72,65 @@ namespace PrtgShell {
 		}
 		
 		
+		
+		/*
+		
+		            <prtg>
+            <result>
+            <channel>First channel</channel>
+            <value>10</value>
+            </result>
+            <result>
+            <channel>Second channel</channel>
+            <value>20</value>
+            </result>
+            </prtg>
+To return an error, the format is:
+
+              <prtg>
+              <error>1</error>
+              <text>Your error message</text>
+              </prtg>
+		
+		*/
+		
+		public string SetPrtgError (string ErrorText) {
+			XDocument XmlObject = new XDocument(
+				new XElement("prtg",
+					new XElement("error", 1),
+					new XElement("text", ErrorText)
+				)
+			);
+
+			return XmlObject.ToString();
+		}
+		
+		
+		public string Xml2 () {
+		
+			XDocument objXDoc = new XDocument(
+				new XComment("Employee Details"),
+				new XElement("Employees",
+					new XElement("Employee",
+						new XElement("Name",
+							new XElement("FirstName", "Henry"),
+							new XElement("LastName", "Ford")
+						),
+						new XElement("Age","65")
+					),
+					 new XElement("Employee",
+						new XElement("Name",
+							new XElement("FirstName", "Bill"),
+							new XElement("LastName", "Gates")
+						),
+						new XElement("Age", "55")
+					)
+				)
+			);
+
+			objXDoc.Declaration = new XDeclaration("1.0", "utf-8", "true");
+		
+			return objXDoc.ToString();
+		}
 	}
 }

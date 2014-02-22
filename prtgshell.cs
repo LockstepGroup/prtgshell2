@@ -7,6 +7,10 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Web;
+using System.Xml;
+using System.Xml.Linq;
+
+
 
 namespace PrtgShell {
 	public class PrtgServer {
@@ -735,7 +739,7 @@ Channel(1001,1)";
 				return this.Text;
 			}
 			set {
-				if (value.Length > 2000) {
+				if (value.Length < 2000) {
 					this.Text = value;
 				} else  {
 					throw new ArgumentOutOfRangeException("Invalid value. Maximum length is 2000 characters.");
@@ -753,11 +757,58 @@ Channel(1001,1)";
 			this.channels.Add(channel);
 		}
 		
-		// i suppose there should also be a method here to generate the XML object out, eh?
-		
 		
 		public ExeXML () {
 			this.channels = new List<PrtgShell.XmlResult>();
+		}
+		
+		
+		public string PrintError (string ErrorText) {
+			XDocument XmlObject = new XDocument(
+				new XElement("prtg",
+					new XElement("error", 1),
+					new XElement("text", ErrorText)
+				)
+			);
+
+			return XmlObject.ToString();
+		}
+		
+		
+		// i suppose there should also be a method here to generate the XML object out, eh?
+		// how this will actually function needs to be nailed down
+		// this is the method that will need to determine what in this object is worthy of spitting out and how
+		public string PrintOutput () {
+			// make the root, add the text
+			XDocument XmlObject = new XDocument(
+				new XElement("prtg",
+					new XElement("text",this.Text)
+				)
+			);
+			
+			// loop through the channels
+			foreach (PrtgShell.XmlResult XmlResult in this.channels) {
+				
+				// make the result
+				XElement ThisChannel = new XElement("result",
+					new XElement("channel", XmlResult.channel),
+					new XElement("value", XmlResult.resultvalue),
+					new XElement("unit", XmlResult.unit)
+				);
+				
+				// this is how to add values to the result channel after the fact
+				if (!String.IsNullOrEmpty(XmlResult.customunit)) {
+					ThisChannel.Add(
+						new XElement("customunit", XmlResult.customunit)
+					);
+				}
+				
+				// add everything we've done here to the root
+				XmlObject.Element("prtg").Add(ThisChannel);
+			}
+
+			// return beautiful, well-formatted xml
+			return XmlObject.ToString();
 		}
     }
 

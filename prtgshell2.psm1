@@ -10,7 +10,11 @@
 
 
 #Add-Type -ReferencedAssemblies @(([System.Reflection.Assembly]::LoadWithPartialName("System.Web")).Location) -TypeDefinition @"
-Add-Type -ReferencedAssemblies @(([System.Reflection.Assembly]::LoadWithPartialName("System.Web")).Location) -TypeDefinition ((gc .\prtgshell.cs) -join "`n")
+Add-Type -ReferencedAssemblies @(
+	([System.Reflection.Assembly]::LoadWithPartialName("System.Xml")).Location,
+	([System.Reflection.Assembly]::LoadWithPartialName("System.Web")).Location,
+	([System.Reflection.Assembly]::LoadWithPartialName("System.Xml.Linq")).Location
+	) -TypeDefinition ((gc .\prtgshell.cs) -join "`n")
 
 ###############################################################################
 
