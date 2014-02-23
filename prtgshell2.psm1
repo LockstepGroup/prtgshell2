@@ -636,6 +636,11 @@ function New-PrtgResult {
         [Parameter(Mandatory=$False)]
         [switch]$IsFloat,
 
+		# note that both showchart and showtable default to "TRUE" in the actual API
+		# which is to say, if they're not defined, they're assumed to be true
+		# this is also true in the c# object that generates the XML,
+		# but it is NOT assumed to be true here.
+		# This is the part of the code that always puts in the showchart and showtables tags with zeroes!
         [Parameter(Mandatory=$False)]
         [Alias('sc')]
         [switch]$ShowChart,

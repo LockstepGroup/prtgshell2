@@ -852,6 +852,23 @@ Channel(1001,1)";
                         );
                 }
 
+
+                // these both default to true; the usual methods of simply not including the tag when they're
+                // not set won't work here.
+                // will it work if we just flip the check? (if false...)
+                if (!XmlResult.showchart) {
+                    ThisChannel.Add(
+                        new XElement("showchart", Convert.ToString(Convert.ToInt32(XmlResult.showchart)))
+                        );
+                }
+
+                if (!XmlResult.showtable) {
+                    ThisChannel.Add(
+                        new XElement("showtable", Convert.ToString(Convert.ToInt32(XmlResult.showtable)))
+                        );
+                }
+
+
                 // limits
                 if (XmlResult.limitmode) {
                     ThisChannel.Add(
@@ -898,9 +915,6 @@ Channel(1001,1)";
                 /*
                 // unhandled
                 decimalmode     string decimalmode {get;set;}
-           
-                showchart       bool showchart {get;set;}
-                showtable       bool showtable {get;set;}
                 
                 volumesize      string volumesize {get;set;}
                
@@ -923,6 +937,8 @@ Channel(1001,1)";
                 limitminwarning int limitminwarning {get;set;}
                 limitwarningmsg string limitwarningmsg {get;set;}
                 limitmode       bool limitmode {get;set;}
+                showchart       bool showchart {get;set;}
+                showtable       bool showtable {get;set;}
                 */
 
 
