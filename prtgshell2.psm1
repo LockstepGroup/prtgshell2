@@ -645,16 +645,16 @@ function New-PrtgResult {
         [switch]$ShowTable,
 
         [Parameter(Mandatory=$False)]
-        [int]$LimitMaxError,
+        [int]$LimitMaxError = -1,
 
         [Parameter(Mandatory=$False)]
-        [int]$LimitMinError,
+        [int]$LimitMinError = -1,
 
         [Parameter(Mandatory=$False)]
-        [int]$LimitMaxWarning,
+        [int]$LimitMaxWarning = -1,
 
         [Parameter(Mandatory=$False)]
-        [int]$LimitMinWarning,
+        [int]$LimitMinWarning = -1,
 
         [Parameter(Mandatory=$False)]
         [string]$LimitErrorMsg,
@@ -662,9 +662,9 @@ function New-PrtgResult {
         [Parameter(Mandatory=$False)]
         [string]$LimitWarningMsg,
 
-        [Parameter(Mandatory=$False)]
-        [Alias('lm')]
-        [switch]$LimitMode,
+        #[Parameter(Mandatory=$False)]
+        #[Alias('lm')]
+        #[switch]$LimitMode,
 
         [Parameter(Mandatory=$False)]
         [Alias('vl')]
@@ -683,7 +683,7 @@ function New-PrtgResult {
         $ReturnObject.speedsize       = $SpeedSize
         $ReturnObject.volumesize      = $VolumeSize
         $ReturnObject.speedtime       = $SpeedTime
-        $ReturnObject.mode            = $Mode
+        $ReturnObject.valuemode       = $Mode # had to rename the object property; needs revisiting
         $ReturnObject.decimalmode     = $DecimalMode
         $ReturnObject.Warning         = $Warning
         $ReturnObject.isfloat         = $IsFloat
@@ -695,7 +695,7 @@ function New-PrtgResult {
         $ReturnObject.limitminwarning = $LimitMinWarning
         $ReturnObject.limiterrormsg   = $LimitErrorMsg
         $ReturnObject.limitwarningmsg = $LimitWarningMsg
-        $ReturnObject.limitmode       = $LimitMode
+        #$ReturnObject.limitmode       = $LimitMode # read-only automatically-determined property. any reason we shouldn't do this?
         $ReturnObject.valuelookup     = $ValueLookup
 
         return $ReturnObject
