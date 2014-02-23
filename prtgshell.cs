@@ -707,7 +707,16 @@ Channel(1001,1)";
 		private string DecimalMode;
         public string decimalmode {
 			get {
-				return this.DecimalMode;
+				if (String.IsNullOrEmpty(this.DecimalMode)) {
+					// if it hasn't been set, automatically determine the values
+					if (this.isfloat) {
+						return "All";
+					} else {
+						return "Auto";
+					}
+				} else {
+					return this.DecimalMode;
+				}
 			}
 			set {
 				if ((ValidDecimalMode.FindIndex(x => x.Equals(value, StringComparison.OrdinalIgnoreCase) ) != -1) || String.IsNullOrEmpty(value)) {
@@ -835,14 +844,7 @@ Channel(1001,1)";
 
                 if (XmlResult.valuemode) {
                     ThisChannel.Add(
-                        new XElement("mode", XmlResult.Mode) //Convert.ToString(Convert.ToInt32(XmlResult.mode))
-                        );
-                }
-
-                if (XmlResult.isfloat) {
-                    ThisChannel.Add(
-                        new XElement("float",
-                            Convert.ToString(Convert.ToInt32(XmlResult.isfloat)))
+                        new XElement("mode", XmlResult.Mode)
                         );
                 }
 
@@ -852,7 +854,7 @@ Channel(1001,1)";
                         );
                 }
 
-
+				///////////////////////////////////////////
                 // these both default to true; the usual methods of simply not including the tag when they're
                 // not set won't work here.
                 // will it work if we just flip the check? (if false...)
@@ -868,7 +870,7 @@ Channel(1001,1)";
                         );
                 }
 
-
+				///////////////////////////////////////////
                 // limits
                 if (XmlResult.limitmode) {
                     ThisChannel.Add(
@@ -912,7 +914,7 @@ Channel(1001,1)";
                         );
                 }
 				
-				
+				///////////////////////////////////////////
 				// rates and speeds
 				if (!(String.IsNullOrEmpty(XmlResult.volumesize))) {
                     ThisChannel.Add(
@@ -939,56 +941,26 @@ Channel(1001,1)";
                         );
                 }
 				
+				///////////////////////////////////////////
+				// decimalmode & floats
+				// this could use further review as well
+				// not at all convinced that decimalmode actually works in the API,
+				// but the way we handle it may also not be correct
+				// isfloat works properly, but there might be a more elegant way to handle it
+				if (!(String.IsNullOrEmpty(XmlResult.decimalmode))) {
+                    ThisChannel.Add(
+                        new XElement("mode", XmlResult.decimalmode)
+                        );
+                }
+				
+                if (XmlResult.isfloat) {
+                    ThisChannel.Add(
+                        new XElement("float",
+                            Convert.ToString(Convert.ToInt32(XmlResult.isfloat)))
+                        );
+                }
 				
 
-                /*
-                // unhandled
-                decimalmode     string decimalmode {get;set;}
-                
-
-				
-				
-				
-                // finished
-                resultvalue     decimal resultvalue {get;set;}
-                mode            bool mode {get;set;}
-                isfloat         bool isfloat {get;set;}
-                warning         bool warning {get;set;}
-                limiterrormsg   string limiterrormsg {get;set;}
-                limitminerror   int limitminerror {get;set;}
-                limitmaxerror   int limitmaxerror {get;set;}
-                limitmaxwarning int limitmaxwarning {get;set;}
-                limitminwarning int limitminwarning {get;set;}
-                limitwarningmsg string limitwarningmsg {get;set;}
-                limitmode       bool limitmode {get;set;}
-                showchart       bool showchart {get;set;}
-                showtable       bool showtable {get;set;}
-                volumesize      string volumesize {get;set;}
-                speedsize       string speedsize {get;set;}
-                speedtime       string speedtime {get;set;}
-                valuelookup     string valuelookup {get;set;}
-                */
-
-
-                /*
-    if (!($Value -is [int])) { $Result += "    <float>1</float>`n" }
-    if ($Mode)        { $Result += "    <mode>$Mode</mode>`n" }
-    if ($MaxWarn)     { $Result += "    <limitmaxwarning>$MaxWarn</limitmaxwarning>`n"; $LimitMode = $true }
-    if ($MaxError)    { $Result += "    <limitminwarning>$MinWarn</limitminwarning>`n"; $LimitMode = $true }
-    if ($MaxError)    { $Result += "    <limitmaxerror>$MaxError</limitmaxerror>`n"; $LimitMode = $true }
-    if ($WarnMsg)     { $Result += "    <limitwarningmsg>$WarnMsg</limitwarningmsg>`n"; $LimitMode = $true }
-    if ($ErrorMsg)    { $Result += "    <limiterrormsg>$ErrorMsg</limiterrormsg>`n"; $LimitMode = $true }
-    if ($LimitMode)   { $Result += "    <limitmode>1</limitmode>`n" }
-    if ($SpeedSize)   { $Result += "    <speedsize>$SpeedSize</speedsize>`n" }
-    if ($VolumeSize)  { $Result += "    <volumesize>$VolumeSize</volumesize>`n" }
-    if ($DecimalMode) { $Result += "    <decimalmode>$DecimalMode</decimalmode>`n" }
-    if ($Warning)     { $Result += "    <warning>1</warning>`n" }
-    if ($ValueLookup) { $Result += "    <ValueLookup>$ValueLookup</ValueLookup>`n" }
-    
-    if (!($ShowChart)) { $Result += "    <showchart>0</showchart>`n" }
-    
-                */
-				
 				
 				
 				// add everything we've done here to the root
