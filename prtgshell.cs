@@ -13,6 +13,7 @@ using System.Xml.Linq;
 
 
 namespace PrtgShell {
+
 	public class PrtgServer {
 		// can we rewrite the helper functions as methods in this class?
 		
@@ -203,7 +204,6 @@ namespace PrtgShell {
 			//	this.PassHash = this.parsed_querystring.passhash;
 			//}
 		}
-		
 	}
     
     public class PrtgSensorCreator {
@@ -468,8 +468,6 @@ Channel(1001,1)";
 	}
 	
 	public class PrtgProbe : PrtgObject {
-		// probes inherit everything from objects as well as the following
-		
 		public string condition { get; set; }
 		public string fold { get; set; }
 		public string groupnum { get; set; }
@@ -477,15 +475,11 @@ Channel(1001,1)";
 	}
 	
 	public class PrtgGroup : PrtgProbe {
-		// groups inherit everything from probes as well as the following
-		
 		public string group { get; set; }
 		public string location { get; set; }
 	}
 	
 	public class PrtgDevice : PrtgObject {
-		// probes inherit everything from objects as well as the following
-		
 		public string device { get; set; }
 		public string group { get; set; }
 		public string grpdev { get; set; }
@@ -496,8 +490,6 @@ Channel(1001,1)";
 	}
 	
 	public class PrtgSensor : PrtgObject {
-		// probes inherit everything from objects as well as the following
-		
 		public string device { get; set; }
 		public string group { get; set; }
 		public string grpdev { get; set; }
