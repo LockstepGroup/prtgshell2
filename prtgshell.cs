@@ -911,20 +911,44 @@ Channel(1001,1)";
                         new XElement("mode", XmlResult.limiterrormsg)
                         );
                 }
+				
+				
+				// rates and speeds
+				if (!(String.IsNullOrEmpty(XmlResult.volumesize))) {
+                    ThisChannel.Add(
+                        new XElement("mode", XmlResult.volumesize)
+                        );
+                }
+				
+				if (!(String.IsNullOrEmpty(XmlResult.speedsize))) {
+                    ThisChannel.Add(
+                        new XElement("mode", XmlResult.speedsize)
+                        );
+                }
+				
+				if (!(String.IsNullOrEmpty(XmlResult.speedtime))) {
+                    ThisChannel.Add(
+                        new XElement("mode", XmlResult.speedtime)
+                        );
+                }
+				
+				
+				if (!(String.IsNullOrEmpty(XmlResult.valuelookup))) {
+                    ThisChannel.Add(
+                        new XElement("mode", XmlResult.valuelookup)
+                        );
+                }
+				
+				
 
                 /*
                 // unhandled
                 decimalmode     string decimalmode {get;set;}
                 
-                volumesize      string volumesize {get;set;}
-               
-                speedsize       string speedsize {get;set;}
-                speedtime       string speedtime {get;set;}
 
-                valuelookup     string valuelookup {get;set;}
-                
-                 * 
-                 * 
+				
+				
+				
                 // finished
                 resultvalue     decimal resultvalue {get;set;}
                 mode            bool mode {get;set;}
@@ -939,6 +963,10 @@ Channel(1001,1)";
                 limitmode       bool limitmode {get;set;}
                 showchart       bool showchart {get;set;}
                 showtable       bool showtable {get;set;}
+                volumesize      string volumesize {get;set;}
+                speedsize       string speedsize {get;set;}
+                speedtime       string speedtime {get;set;}
+                valuelookup     string valuelookup {get;set;}
                 */
 
 
