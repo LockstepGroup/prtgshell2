@@ -238,6 +238,10 @@ function Get-PrtgTableData {
 
 		[Parameter(Mandatory=$False)]
 		[string[]]$FilterTags,
+		
+		[Parameter(Mandatory=$False)]
+		#[ValidateSet("Unknown","Collecting","Up","Warning","Down","NoProbe","PausedbyUser","PausedbyDependency","PausedbySchedule","Unusual","PausedbyLicense","PausedUntil","DownAcknowledged","DownPartial")]
+		[string[]]$FilterStatus,
 
 		[Parameter(Mandatory=$False)]
 		[int]$Count,
@@ -271,7 +275,13 @@ function Get-PrtgTableData {
 		if ($FilterTags -and (!($Content -eq "sensors"))) {
 			throw "Get-PrtgTableData: Parameter FilterTags requires content type sensors"
 		} elseif ($Content -eq "sensors" -and $FilterTags) {
-			$FilterProperty =  @{ "filter_tags" = $FilterTags }
+			$FilterProperty += @{ "filter_tags" = $FilterTags }
+		}
+		
+		if ($FilterStatus -and (!($Content -eq "sensors"))) {
+			throw "Get-PrtgTableData: Parameter FilterStatus requires content type sensors"
+		} elseif ($Content -eq "sensors" -and $FilterStatus) {
+			$FilterProperty += @{ "filter_status" = $FilterStatus }
 		}
 
 		if (!$Columns) {
@@ -361,6 +371,20 @@ function Get-PrtgTableData {
 		
 		
 		
+		
+		# at this point, $Data.$Content.item.Count will ALWAYS return at least 1, even if it is an empty set
+		# we need to do a check here to somehow determine if an empty set was returned, and if so, handle it
+		# rather than spit out a single empty object of type $content
+		
+		# a couple tests
+		# note that these rely on the system not having any down sensors (FilterStatus = 2 returns an empty set)
+		
+		# $data = [xml](Get-PrtgTableData sensors 40 -FilterStatus 2 -Raw)
+		# $data.sensors.item.Count # returns 1; set is actually empty
+		
+		# $data = [xml](Get-PrtgTableData sensors 40 -FilterStatus 3 -Raw)
+		# $data.sensors.item.Count # returns 4; correct
+		
 
 		foreach ($item in $Data.$Content.item) {
 			$ThisObject = New-Object $PrtgObjectType
@@ -380,6 +404,11 @@ function Get-PrtgTableData {
 			$ReturnData += $ThisObject
 		}
 
+		<#
+		# this section needs to be revisited
+		# if the filter ends up returning an empty set, we need to say so, or return said empty said
+		# and we also need to make the "get-prtgobjecttype" cmdlet that this depends on
+		
 		if ($ReturnData.name -eq "Item" -or (!($ReturnData.ToString()))) {
 			$DeterminedObjectType = Get-PrtgObjectType $ObjectId
 
@@ -398,6 +427,10 @@ function Get-PrtgTableData {
 		} else {
 			return $ReturnData
 		}
+		
+		#>
+		
+		return $ReturnData
 	}
 }
 
