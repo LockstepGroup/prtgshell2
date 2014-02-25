@@ -248,7 +248,7 @@ namespace PrtgShell {
 				return this.sensor_priority;
 			}
 			set {
-				if (value > 0 && value <= 5) {
+				if (value >= 0 && value <= 5) {
 					this.sensor_priority = value;
 				} else  {
 					throw new ArgumentOutOfRangeException("Invalid value. Value must be between 0 and 5");
@@ -443,7 +443,7 @@ Channel(1001,1)";
 				return this.priority;
 			}
 			set {
-				if (value > 0 && value <= 5) {
+				if (value >= 0 && value <= 5) {
 					this.priority = value;
 				} else  {
 					throw new ArgumentOutOfRangeException("Invalid value. Value must be between 0 and 5");
