@@ -369,39 +369,31 @@ function Get-PrtgTableData {
 			"history"	{ "PrtgShell.PrtgHistory" }
 		}
 		
-		
-		
-		
-		# at this point, $Data.$Content.item.Count will ALWAYS return at least 1, even if it is an empty set
-		# we need to do a check here to somehow determine if an empty set was returned, and if so, handle it
-		# rather than spit out a single empty object of type $content
-		
-		# a couple tests
-		# note that these rely on the system not having any down sensors (FilterStatus = 2 returns an empty set)
-		
-		# $data = [xml](Get-PrtgTableData sensors 40 -FilterStatus 2 -Raw)
-		# $data.sensors.item.Count # returns 1; set is actually empty
-		
-		# $data = [xml](Get-PrtgTableData sensors 40 -FilterStatus 3 -Raw)
-		# $data.sensors.item.Count # returns 4; correct
-		
-
-		foreach ($item in $Data.$Content.item) {
-			$ThisObject = New-Object $PrtgObjectType
-			#$ThisRow = "" | Select-Object $SelectedColumns
-			foreach ($Prop in $SelectedColumns) {
-				if ($Content -eq "channels" -and $Prop -eq "lastvalue_raw") {
-					# fix a bizarre formatting bug
-					#$ThisObject.$Prop = HelperFormatHandler $item.$Prop
-					$ThisObject.$Prop = $item.$Prop
-				} elseif ($HTMLColumns -contains $Prop) {
-					# strip HTML, leave bare text
-					$ThisObject.$Prop =  $item.$Prop -replace "<[^>]*?>|<[^>]*>", ""
-				} else {
-					$ThisObject.$Prop = $item.$Prop
+		if ($Data.$Content.item.childnodes.count) { # this will return zero if there's an empty set
+			foreach ($item in $Data.$Content.item) {
+				$ThisObject = New-Object $PrtgObjectType
+				#$ThisRow = "" | Select-Object $SelectedColumns
+				foreach ($Prop in $SelectedColumns) {
+					if ($Content -eq "channels" -and $Prop -eq "lastvalue_raw") {
+						# fix a bizarre formatting bug
+						#$ThisObject.$Prop = HelperFormatHandler $item.$Prop
+						$ThisObject.$Prop = $item.$Prop
+					} elseif ($HTMLColumns -contains $Prop) {
+						# strip HTML, leave bare text
+						$ThisObject.$Prop =  $item.$Prop -replace "<[^>]*?>|<[^>]*>", ""
+					} else {
+						$ThisObject.$Prop = $item.$Prop
+					}
 				}
+				$ReturnData += $ThisObject
 			}
-			$ReturnData += $ThisObject
+		} else {
+			$ErrorString = "Object" + $ObjectId + " contains no objects of type" + $Content
+			if ($FilterProperty.Count) {
+				$ErrorString += " matching specified filter parameters"
+			}
+			
+			Write-Host $ErrorString
 		}
 
 		<#
