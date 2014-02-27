@@ -966,3 +966,64 @@ Channel(1001,1)";
 
 // ----------------------------------------------------------------------------- //
 }
+/*
+// ------------------------ Helper HTTP Query Object ------------------------ //
+public class HttpQueryReturnObject {
+	public string Statuscode;
+	public string DetailedError;
+	public XmlDocument Data;
+}
+// -------------------------------------------------------------------------- //
+// --------------------------- Helper HTTP Query ---------------------------- //
+
+public HttpQueryReturnObject HttpQuery(string Url) {
+	HttpWebResponse Response = null;
+	HttpStatusCode StatusCode = new HttpStatusCode();
+	try {
+		HttpWebRequest Request = WebRequest.Create( Url ) as HttpWebRequest;
+		Response = Request.GetResponse() as HttpWebResponse;
+		if ( Response.ContentLength > 0 ) {
+			StatusCode = Response.StatusCode;
+			string DetailedError = Response.GetResponseHeader( "X-Detailed-Error" );
+		}
+	} catch {
+
+// ------------------------ Copied from powershell -------------------------- //
+/*
+
+			$ErrorMessage = $Error[0].Exception.ErrorRecord.Exception.Message
+			$Matched = ($ErrorMessage -match '[0-9]{3}')
+			if ($Matched) {
+				throw ('HTTP status code was {0} ({1})' -f $HttpStatusCode, $matches[0])
+			}
+			else {
+				throw $ErrorMessage
+			}
+// -------------------------------------------------------------------------- //
+*/
+		
+/*
+		throw new HttpException( "httperror" );
+	}
+
+	if ( Response.StatusCode.ToString() == "OK" ) {
+		StreamReader Reader = new StreamReader( Response.GetResponseStream() );
+		string Result = Reader.ReadToEnd();
+		XmlDocument XResult = new XmlDocument();
+		XResult.LoadXml( Result );
+
+		Reader.Close();
+		Response.Close();
+
+		HttpQueryReturnObject ReturnObject = new HttpQueryReturnObject();
+		ReturnObject.Statuscode = StatusCode.ToString();
+		ReturnObject.Data = XResult;
+
+		return ReturnObject;
+	} else {
+		throw new HttpException( "httperror" );
+	}
+}
+
+// -------------------------------------------------------------------------- //
+*/
