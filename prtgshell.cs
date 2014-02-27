@@ -250,6 +250,7 @@ namespace PrtgShell {
                 HttpQueryReturnObject ReturnObject = new HttpQueryReturnObject();
                 ReturnObject.Statuscode = StatusCode;
                 ReturnObject.Data = XResult;
+                ReturnObject.RawData = Result;
                 return ReturnObject;
 
             } else {
@@ -266,6 +267,7 @@ namespace PrtgShell {
         public HttpStatusCode Statuscode;
         public string DetailedError;
         public XmlDocument Data;
+        public string RawData;
         public int HttpStatusCode {
             get {
                 return (int)this.Statuscode;
