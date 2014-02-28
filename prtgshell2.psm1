@@ -593,7 +593,7 @@ function Set-PrtgSetting {
 		
 		if ($PrtgObjectId) {
 			if ($PrtgObjectId.Count -gt 1) {
-				$PrtgObjectId = $PrtgObjectId -join ","
+				[string]$PrtgObjectId = $PrtgObjectId -join ","
 			}
 			
 			$QueryStringTable = @{
@@ -601,7 +601,9 @@ function Set-PrtgSetting {
 				$PrtgObjectProperty		= $PrtgObjectPropertyValue
 			}
 			
-			$QueryStringTable += $PrtgSettingHashtable
+			if ($PrtgSettingHashtable) {
+				$QueryStringTable += $PrtgSettingHashtable
+			}
 		} else {
 			if ($PrtgSettingHashtable.id) {
 				$QueryStringTable = $PrtgSettingHashtable
