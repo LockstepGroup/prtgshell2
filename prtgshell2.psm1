@@ -840,6 +840,46 @@ function New-PrtgResult {
 
 ###############################################################################
 
+# remove-prtgobject
+# needs to accept: an ID (the old way)
+# a string of IDs (will this work?)
+# a single prtgshell object object
+# or an array of prtgshell object objects
+
+function Remove-PrtgObject {
+	<#
+	.SYNOPSIS
+		
+	.DESCRIPTION
+		
+	.EXAMPLE
+		
+	#>
+
+	Param (
+		[Parameter(Mandatory=$True,Position=0)]
+		$ObjectId
+		#TODO: document this; $ObjectID for this cmdlet can either be a single integer or a comma-separated string of integers to handle multiples
+	)
+
+    BEGIN {
+        if (!($PrtgServerObject.Server)) { Throw "Not connected to a server!" }
+    }
+
+    PROCESS {
+		$Url = $PrtgServerObject.UrlBuilder("deleteobject.htm",@{
+			"id" = $ObjectId
+			"approve" = 1
+		})
+		
+		$Data = $PrtgServerObject.HttpQuery($Url,$false)
+		
+		return $Data | select HttpStatusCode,Statuscode
+    }
+}
+
+###############################################################################
+
 
 
 function HelperHTTPQuery {
