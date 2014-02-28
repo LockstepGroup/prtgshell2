@@ -565,7 +565,7 @@ function Set-PrtgSetting {
 	#>
 
     Param (
-		[Parameter(Position = 0, Mandatory = $true, ParameterSetName = "singleproperty")]
+		[Parameter(Position = 0, Mandatory = $true)]
 		[alias("id")]
 		[int[]]$PrtgObjectId,
 		
@@ -577,7 +577,7 @@ function Set-PrtgSetting {
 		[alias("value")]
 		$PrtgObjectPropertyValue,
 		
-		[Parameter(ParameterSetName = "multipleproperties")]
+		[Parameter(Position = 1, ParameterSetName = "multipleproperties")]
 		[alias("table")]
 		[hashtable]$PrtgSettingHashtable
     )
@@ -592,7 +592,7 @@ function Set-PrtgSetting {
         $Url = $PrtgServerObject.UrlBuilder("editsettings")
 		
 		if ($PrtgObjectId) {
-			if ($PrtgObjectId.Count > 1) {
+			if ($PrtgObjectId.Count -gt 1) {
 				$PrtgObjectId = $PrtgObjectId -join ","
 			}
 			
@@ -600,6 +600,8 @@ function Set-PrtgSetting {
 				"id" 					= $PrtgObjectId
 				$PrtgObjectProperty		= $PrtgObjectPropertyValue
 			}
+			
+			$QueryStringTable += $PrtgSettingHashtable
 		} else {
 			if ($PrtgSettingHashtable.id) {
 				$QueryStringTable = $PrtgSettingHashtable
