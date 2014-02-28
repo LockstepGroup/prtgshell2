@@ -209,7 +209,7 @@ namespace PrtgShell {
 
 
 
-        public HttpQueryReturnObject HttpQuery(string Url) {
+        public HttpQueryReturnObject HttpQuery(string Url, bool AsXml = true) {
             // this works. there's some logic missing from the original powershell version of this
             // that may or may not be important (it was error handling of some flavor)
             // also, all requests should not be treated as XML for this to be more generic
@@ -240,16 +240,18 @@ namespace PrtgShell {
             if (Response.StatusCode.ToString() == "OK") {
                 StreamReader Reader = new StreamReader(Response.GetResponseStream());
                 string Result = Reader.ReadToEnd();
+				XmlDocument XResult = new XmlDocument();
 
-                XmlDocument XResult = new XmlDocument();
-                XResult.LoadXml(Result);
-
+				if (AsXml) {
+					XResult.LoadXml(Result);
+				}
+				
                 Reader.Close();
                 Response.Close();
 
                 HttpQueryReturnObject ReturnObject = new HttpQueryReturnObject();
                 ReturnObject.Statuscode = StatusCode;
-                ReturnObject.Data = XResult;
+                if (AsXml) { ReturnObject.Data = XResult; }
                 ReturnObject.RawData = Result;
                 return ReturnObject;
 
