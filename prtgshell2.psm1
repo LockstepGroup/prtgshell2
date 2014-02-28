@@ -850,6 +850,11 @@ function New-PrtgResult {
 # a single prtgshell object object
 # or an array of prtgshell object objects
 
+
+# for handling objects
+# needs to string together the objids from the objects received
+# and then in the END block, execute the actual DO
+
 function Remove-PrtgObject {
 	<#
 	.SYNOPSIS
@@ -862,7 +867,7 @@ function Remove-PrtgObject {
 
 	Param (
 		[Parameter(Mandatory=$True,Position=0)]
-		$ObjectId
+		[int[]]$ObjectId
 		#TODO: document this; $ObjectID for this cmdlet can either be a single integer or a comma-separated string of integers to handle multiples
 	)
 
@@ -871,6 +876,8 @@ function Remove-PrtgObject {
     }
 
     PROCESS {
+		[string]$ObjectId = $ObjectId -join ","
+	
 		$Url = $PrtgServerObject.UrlBuilder("deleteobject.htm",@{
 			"id" = $ObjectId
 			"approve" = 1
