@@ -608,7 +608,7 @@ function Set-PrtgSetting {
 			if ($PrtgSettingHashtable.id) {
 				$QueryStringTable = $PrtgSettingHashtable
 			} else {
-				throw "Hashtable MUST contain ID property!"
+				throw "Command requires Object ID!"
 			}
 		}
 		
