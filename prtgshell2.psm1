@@ -882,6 +882,95 @@ function Remove-PrtgObject {
 
 
 
+function Set-PrtgObjectProperty {
+        <#
+        .SYNOPSIS
+                
+        .DESCRIPTION
+                
+        .EXAMPLE
+                
+        #>
+
+    Param (
+		[Parameter(Mandatory=$True,Position=0)]
+		[int]$ObjectId,
+
+		[Parameter(Mandatory=$True,Position=1)]
+		[string]$Property,
+
+		[Parameter(Mandatory=$True,Position=2)]
+		[string]$Value
+    )
+
+	BEGIN {
+		if (!($PrtgServerObject.Server)) { Throw "Not connected to a server!" }
+	}
+
+    PROCESS {
+		$Url = $PrtgServerObject.UrlBuilder("setobjectproperty.htm",@{
+			"id"		= $ObjectId
+			"name" 		= $Property
+			"value" 	= $Value
+		})
+		
+		$QueryObject = HelperHTTPQuery $Url -AsXML
+		$Data = $QueryObject.Data
+		#$Data = $PrtgServerObject.HttpQuery($Url,$false)
+		
+		return $Data #| select HttpStatusCode,Statuscode
+		# -replace "<[^>]*?>|<[^>]*>", ""
+		# return "" | select @{n='ObjectID';e={$ObjectId}},@{n='Property';e={$Property}},@{n='Value';e={$Value}},@{n='Response';e={$global:Response}}
+    }
+}
+
+
+###############################################################################
+
+function Get-PrtgObjectProperty {
+	<#
+	.SYNOPSIS
+		
+	.DESCRIPTION
+		
+	.EXAMPLE
+		
+	#>
+
+    Param (
+        [Parameter(Mandatory=$True,Position=0)]
+		[alias('DeviceId')]
+        [int]$ObjectId,
+
+        [Parameter(Mandatory=$True,Position=1)]
+        [string]$Property
+    )
+
+    BEGIN {
+		$PRTG = $Global:PrtgServerObject
+		if ($PRTG.Protocol -eq "https") { HelperSSLConfig }
+    }
+
+    PROCESS {
+		$url = HelperURLBuilder "getobjectproperty.htm" (
+			"&id=$ObjectId",
+			"&name=$Property",
+			"&show=text"
+		)
+
+        $global:lasturl = $url
+        
+		$QueryObject = HelperHTTPQuery $url -AsXML
+		$Data = $QueryObject.Data
+		
+        return $Data.prtg.result
+    }
+}
+
+###############################################################################
+
+
+
 function HelperHTTPQuery {
 	Param (
 		[Parameter(Mandatory=$True,Position=0)]
