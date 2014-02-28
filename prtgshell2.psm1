@@ -908,20 +908,16 @@ function Set-PrtgObjectProperty {
 	}
 
     PROCESS {
-		$Url = $PrtgServerObject.UrlBuilder("setobjectproperty.htm",@{
+		$Url = $PrtgServerObject.UrlBuilder("api/setobjectproperty.htm",@{
 			"id"		= $ObjectId
 			"name" 		= $Property
 			"value" 	= $Value
 		})
 		
-		$QueryObject = HelperHTTPQuery $Url -AsXML
-		$Data = $QueryObject.Data
-		#$Data = $PrtgServerObject.HttpQuery($Url,$false)
+		$Data = $PrtgServerObject.HttpQuery($Url,$false)
 		
-		return $Data #| select HttpStatusCode,Statuscode
-		# -replace "<[^>]*?>|<[^>]*>", ""
-		# return "" | select @{n='ObjectID';e={$ObjectId}},@{n='Property';e={$Property}},@{n='Value';e={$Value}},@{n='Response';e={$global:Response}}
-    }
+		return $Data.RawData -replace "<[^>]*?>|<[^>]*>", ""
+	}
 }
 
 
@@ -947,23 +943,19 @@ function Get-PrtgObjectProperty {
     )
 
     BEGIN {
-		$PRTG = $Global:PrtgServerObject
-		if ($PRTG.Protocol -eq "https") { HelperSSLConfig }
+		if (!($PrtgServerObject.Server)) { Throw "Not connected to a server!" }
     }
 
     PROCESS {
-		$url = HelperURLBuilder "getobjectproperty.htm" (
-			"&id=$ObjectId",
-			"&name=$Property",
-			"&show=text"
-		)
+		$Url = $PrtgServerObject.UrlBuilder("api/getobjectproperty.htm",@{
+			"id"		= $ObjectId
+			"name" 		= $Property
+			"show" 		= "text"
+		})
 
-        $global:lasturl = $url
-        
-		$QueryObject = HelperHTTPQuery $url -AsXML
-		$Data = $QueryObject.Data
+		$Data = $PrtgServerObject.HttpQuery($Url,$true)
 		
-        return $Data.prtg.result
+		return $Data.Data.prtg.result
     }
 }
 
