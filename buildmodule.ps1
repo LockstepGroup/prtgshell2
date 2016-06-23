@@ -44,7 +44,7 @@ function ZipFiles {
     $Cleanup = Remove-Item $TempZipFullPath -Recurse
 }
 
-
+$VerbosePrefix = "buildmodule"
 $ScriptPath = Split-Path $($MyInvocation.MyCommand).Path
 $ModuleName = Split-Path $ScriptPath -Leaf
 
@@ -111,14 +111,16 @@ $CsOutput  = ""
 # Add C-Sharp
 
 $AssemblyRx       = [regex] '^using\ .+?;'
-$NameSpaceStartRx = [regex] "namespace $ModuleName {"
+$NameSpaceStartRx = [regex] 'namespace (?<namespace>[^\ ]+?) {'
 $NameSpaceStopRx  = [regex] '^}$'
+
 
 $Assemblies    = @()
 $CSharpContent = @()
 
 $c = 0
 foreach ($f in $(ls $CsPath)) {
+    Write-Verbose "$VerbosePrefix adding $($f.Name)"
     foreach ($l in (gc $f.FullName)) {
         $AssemblyMatch       = $AssemblyRx.Match($l)
         $NameSpaceStartMatch = $NameSpaceStartRx.Match($l)
@@ -130,6 +132,7 @@ foreach ($f in $(ls $CsPath)) {
         }
 
         if ($NameSpaceStartMatch.Success) {
+            $NameSpace  = $NameSpaceStartMatch.Groups['namespace'].Value
             $AddContent = $true
             continue
         }
@@ -140,15 +143,14 @@ foreach ($f in $(ls $CsPath)) {
         }
 
         if ($AddContent) {
+            Write-Verbose "$VerbosePrefix $l"
             $CSharpContent += $l
         }
     }
 }
 
-#$Assemblies | Select -Unique | sort -Descending
-
 $CSharpOutput  = $Assemblies | Select -Unique | sort -Descending
-$CSharpOutput += "namespace $ModuleName {"
+$CSharpOutput += "namespace $NameSpace {"
 $CSharpOutput += $CSharpContent
 $CSharpOutput += '}'
 
@@ -168,6 +170,7 @@ Add-Type -ReferencedAssemblies @(
 $Output = $CmdletHeader
 
 foreach ($l in $(ls $CmdletPath)) {
+    if ($l.Name -match "\.Tests\.") { continue }
     $Contents  = gc $l.FullName
     Write-Verbose $l.FullName
     $Output   += $FunctionHeader

@@ -1,4 +1,3 @@
-
 function Set-PrtgError {
   Param (
     [Parameter(Mandatory=$True,Position=0)]
