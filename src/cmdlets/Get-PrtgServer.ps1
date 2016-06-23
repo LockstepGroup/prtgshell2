@@ -46,6 +46,7 @@ function Get-PrtgServer {
 		When specified, the cmdlet returns nothing on success.
 	#>
 
+	[CmdletBinding()]
 	Param (
 		[Parameter(Mandatory=$True,Position=0)]
 		[ValidatePattern("\d+\.\d+\.\d+\.\d+|(\w\.)+\w")]
@@ -70,50 +71,68 @@ function Get-PrtgServer {
 	)
 
     BEGIN {
+		
+		$PrtgServerObject = New-Object PrtgShell.PrtgServer
+		
+		$PrtgServerObject.Server   = $Server
+		$PrtgServerObject.UserName = $UserName
+		$PrtgServerObject.PassHash = $PassHash
+		
 		if ($HttpOnly) {
 			$Protocol = "http"
 			if (!$Port) { $Port = 80 }
+			
 		} else {
 			$Protocol = "https"
 			if (!$Port) { $Port = 443 }
 			
-			$PrtgServerObject = New-Object PrtgShell.PrtgServer
-			
-			$PrtgServerObject.Protocol = $Protocol
-			$PrtgServerObject.Port     = $Port
-			$PrtgServerObject.Server   = $Server
-			$PrtgServerObject.UserName = $UserName
-			$PrtgServerObject.PassHash = $PassHash
-			
-			$PrtgServerObject.OverrideValidation()
+			#$PrtgServerObject.OverrideValidation()
 		}
+		
+		$PrtgServerObject.Protocol = $Protocol
+		$PrtgServerObject.Port     = $Port
     }
 
     PROCESS {
 		$url = $PrtgServerObject.UrlBuilder("api/getstatus.xml")
 
 		try {
-			$QueryObject = HelperHTTPQuery $url -AsXML
+			#$QueryObject = HelperHTTPQuery $url -AsXML
+			#$PrtgServerObject.OverrideValidation()
+			$QueryObject = $PrtgServerObject.HttpQuery($url)
 		} catch {
 			throw "Error performing HTTP query"
 		}
 		
 		$Data = $QueryObject.Data
 
-		$data.status.ChildNodes | % {
-			if ($_.Name -ne "IsAdminUser") {
-				$PrtgServerObject.$($_.Name) = $_.InnerText
-			} else {
-				# TODO
-				# there's at least four properties that need to be treated this way
-				# this is because this property returns a text "true" or "false", which powershell always evaluates as "true"
-				$PrtgServerObject.$($_.Name) = [System.Convert]::ToBoolean($_.InnerText)
+		# the logic and future-proofing of this is a bit on the suspect side.
+		# the idea is that we want to get all the properties that it returns
+		# and shove them into our new object, but if the object is missing 
+		# the property in the first place we will get an error. this happens
+		# periodically when paessler adds new properties to the output.
+		#
+		# so how do we gracefully handle new properties?
+		foreach ($ChildNode in $data.status.ChildNodes) {
+			# for now, we outright ignore them.
+			if (($PrtgServerObject | Get-Member | Select-Object -ExpandProperty Name) -contains $ChildNode.Name) {
+				
+				if ($ChildNode.Name -ne "IsAdminUser") {
+					$PrtgServerObject.$($ChildNode.Name) = $ChildNode.InnerText
+				} else {
+					# TODO
+					# there's at least four properties that need to be treated this way
+					# this is because this property returns a text "true" or "false", which powershell always evaluates as "true"
+					$PrtgServerObject.$($ChildNode.Name) = [System.Convert]::ToBoolean($ChildNode.InnerText)
+				}
+				
 			}
 		}
 		
         $global:PrtgServerObject = $PrtgServerObject
 
 		#HelperFormatTest ###### need to add this back in
+		# this tests for a decimal-placement bug that existed in the output from some old versions of prtg
 		
 		if (!$Quiet) {
 			return $PrtgServerObject | Select-Object @{n='Connection';e={$_.ApiUrl}},UserName,Version

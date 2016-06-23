@@ -166,17 +166,16 @@ namespace PrtgShell {
         public void OverrideValidation() {
             ServicePointManager.ServerCertificateValidationCallback = OnValidateCertificate;
             ServicePointManager.Expect100Continue = true;
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
         }
-
-
+		
         private System.Uri prtguri;
 
         // this likely doesn't need to be public
         // or exist, this is just for peeking
-        public System.Uri PrtgUri {
-            get { return this.prtguri; }
-        }
+        //public System.Uri PrtgUri {
+        //    get { return this.prtguri; }
+        //}
 
         private Hashtable parsed_querystring;
 
@@ -212,6 +211,8 @@ namespace PrtgShell {
             // also, all requests should not be treated as XML for this to be more generic
             // (the powershell version had an "-asxml" flag to handle this)
 
+			this.OverrideValidation();
+			
             HttpWebResponse Response = null;
             HttpStatusCode StatusCode = new HttpStatusCode();
 
