@@ -205,8 +205,8 @@ namespace PrtgShell {
             //	this.PassHash = this.parsed_querystring.passhash;
             //}
         }
-		
-		public HttpQueryReturnObject HttpQuery(string Url, bool AsXml = true) {
+
+        public HttpQueryReturnObject HttpQuery(string Url, bool AsXml = true) {
             // this works. there's some logic missing from the original powershell version of this
             // that may or may not be important (it was error handling of some flavor)
             // also, all requests should not be treated as XML for this to be more generic
@@ -220,15 +220,15 @@ namespace PrtgShell {
 
                 //if (Response.ContentLength > 0) {
 
-                    try {
-                        Response = Request.GetResponse() as HttpWebResponse;
-                        StatusCode = Response.StatusCode;
-                    } catch (WebException we) {
-                        StatusCode = ((HttpWebResponse)we.Response).StatusCode;
-                    }
+                try {
+                    Response = Request.GetResponse() as HttpWebResponse;
+                    StatusCode = Response.StatusCode;
+                } catch (WebException we) {
+                    StatusCode = ((HttpWebResponse)we.Response).StatusCode;
+                }
 
-                    string DetailedError = Response.GetResponseHeader("X-Detailed-Error");
-               // }
+                string DetailedError = Response.GetResponseHeader("X-Detailed-Error");
+                // }
 
             } catch {
                 throw new HttpException("httperror");
@@ -237,12 +237,12 @@ namespace PrtgShell {
             if (Response.StatusCode.ToString() == "OK") {
                 StreamReader Reader = new StreamReader(Response.GetResponseStream());
                 string Result = Reader.ReadToEnd();
-				XmlDocument XResult = new XmlDocument();
+                XmlDocument XResult = new XmlDocument();
 
-				if (AsXml) {
-					XResult.LoadXml(Result);
-				}
-				
+                if (AsXml) {
+                    XResult.LoadXml(Result);
+                }
+
                 Reader.Close();
                 Response.Close();
 
@@ -257,5 +257,5 @@ namespace PrtgShell {
                 throw new HttpException("httperror");
             }
         }
-	}
+    }
 }
