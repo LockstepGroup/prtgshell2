@@ -114,6 +114,7 @@ namespace PrtgShell {
             return CompletedString;
         }
 
+		// i'm not confident that this is actually used anywhere
         public string UrlBuilder(string Action, string[] QueryParameters) {
 
             if (Action.StartsWith("/")) Action = Action.Substring(1);
@@ -143,6 +144,10 @@ namespace PrtgShell {
             Pieces[2] = "?";
             Pieces[3] = this.AuthString;
 
+			// this little bit of awesome handles query string parameters that
+			// have multiple entries with the same key name, which obviously
+			// hashtables do not natively support. this detects values that are
+			// not singleton strings or ints, and blows up the array.
             foreach (DictionaryEntry KeyPair in QueryParameters) {
                 if (KeyPair.Value.GetType() == typeof(string) || KeyPair.Value.GetType() == typeof(int)) {
                     Pieces[4] += ("&" + KeyPair.Key + "=" + KeyPair.Value);
@@ -166,7 +171,7 @@ namespace PrtgShell {
         public void OverrideValidation() {
             ServicePointManager.ServerCertificateValidationCallback = OnValidateCertificate;
             ServicePointManager.Expect100Continue = true;
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12 | SecurityProtocolType.Ssl3;
         }
 		
         private System.Uri prtguri;

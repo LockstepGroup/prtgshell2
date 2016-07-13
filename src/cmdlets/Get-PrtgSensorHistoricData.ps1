@@ -49,8 +49,6 @@ function Get-PrtgSensorHistoricData {
 		$QueryObject = $PrtgServerObject.HttpQuery($url,$false)
 		
 		$DataPoints = $QueryObject.RawData | ConvertFrom-Csv | ? { $_.'Date Time' -ne 'Averages' }
-		
-		#$APropertyName = (($DataPoints | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Name) -notmatch "Coverage") -notmatch "Date Time" | Select-Object -First 1
 	}
 	
 	END {

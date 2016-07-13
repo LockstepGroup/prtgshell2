@@ -31,9 +31,18 @@ function Get-PrtgObject {
 
 		$DeviceType = $Data.prtg.sensortree.nodes.SelectNodes("*[1]").LocalName
 		
-		return $Data.prtg.sensortree.nodes.SelectNodes("*[1]")
+		$ObjectXMLData = $Data.prtg.sensortree.nodes.SelectNodes("*[1]")
 		
-		$ReturnData = @()
+		
+		####
+		$TestReturn = "" | select type,data
+		$TestReturn.type = $DeviceType
+		$TestReturn.data = $ObjectXMLData
+		
+		return $TestReturn
+		####
+		
+		#$ReturnData = @()
 		
 		<#
 		
@@ -46,7 +55,7 @@ function Get-PrtgObject {
 		
 		#>
 		
-		$PrtgObjectType = switch ($Content) {
+		$PrtgObjectType = switch ($DeviceType) {
 			"probes"	{ "PrtgShell.PrtgProbe" }
 			"groups"	{ "PrtgShell.PrtgGroup" }
 			"devices"	{ "PrtgShell.PrtgDevice" }
@@ -58,12 +67,18 @@ function Get-PrtgObject {
 			"history"	{ "PrtgShell.PrtgHistory" }
 		}
 		
+		$ObjectXMLData = $Data.prtg.sensortree.nodes.SelectNodes("*[1]")
 		
+		$ThisObject = New-Object $PrtgObjectType
 		
+		foreach ($p in $ObjectXMLData.GetEnumerator()) {
+			$ThisObject.($p.name) = $p.'#Text'
+		}
+		
+		return $ThisObject
 
-		foreach ($item in $Data.$Content.item) {
-			$ThisObject = New-Object $PrtgObjectType
-			#$ThisRow = "" | Select-Object $SelectedColumns
+		<#
+		#$ThisRow = "" | Select-Object $SelectedColumns
 			foreach ($Prop in $SelectedColumns) {
 				if ($Content -eq "channels" -and $Prop -eq "lastvalue_raw") {
 					# fix a bizarre formatting bug
@@ -97,5 +112,8 @@ function Get-PrtgObject {
 		} else {
 			return $ReturnData
 		}
+		
+		#>
+		
 	}
 }

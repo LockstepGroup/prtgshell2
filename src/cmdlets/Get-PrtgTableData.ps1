@@ -41,6 +41,7 @@ function Get-PrtgTableData {
 			Returns the messages log for device 1002.
 	#>
 
+	[CmdletBinding()]
 	Param (		
 		[Parameter(Mandatory=$True,Position=0)]
 		[ValidateSet("probes","groups","devices","sensors","todos","messages","values","channels","history")]
@@ -56,8 +57,14 @@ function Get-PrtgTableData {
 		[string[]]$FilterTags,
 		
 		[Parameter(Mandatory=$False)]
-		#[ValidateSet("Unknown","Collecting","Up","Warning","Down","NoProbe","PausedbyUser","PausedbyDependency","PausedbySchedule","Unusual","PausedbyLicense","PausedUntil","DownAcknowledged","DownPartial")]
+		[ValidateSet("Unknown","Collecting","Up","Warning","Down","NoProbe","PausedbyUser","PausedbyDependency","PausedbySchedule","Unusual","PausedbyLicense","PausedUntil","DownAcknowledged","DownPartial")]
 		[string[]]$FilterStatus,
+		
+		[Parameter(Mandatory=$False)]
+		[string]$FilterTarget,
+		
+		[Parameter(Mandatory=$False)]
+		[string]$FilterValue,
 
 		[Parameter(Mandatory=$False)]
 		[int]$Count,
@@ -73,12 +80,12 @@ function Get-PrtgTableData {
 		sortby = sorts on named column, ascending (or decending with a leading "-")
 		filter_xyz - fulltext filtering. this is a feature in its own right
 	
+	
+		
 	#>
 
 	BEGIN {
 		$PRTG = $Global:PrtgServerObject
-		if ($PRTG.Protocol -eq "https") { $PRTG.OverrideValidation() }
-
 		
 		$CountProperty = @{}
 		$FilterProperty = @{}
@@ -94,10 +101,38 @@ function Get-PrtgTableData {
 			$FilterProperty += @{ "filter_tags" = $FilterTags }
 		}
 		
+		$StatusFilterCodes = @{
+			"Unknown" = 1
+			"Collecting" = 2
+			"Up" = 3
+			"Warning" = 4
+			"Down" = 5
+			"NoProbe" = 6
+			"PausedbyUser" = 7
+			"PausedbyDependency" = 8
+			"PausedbySchedule" = 9
+			"Unusual" = 10
+			"PausedbyLicense" = 11
+			"PausedUntil" = 12
+			"DownAcknowledged" = 13
+			"DownPartial" = 14
+		}
+		
 		if ($FilterStatus -and (!($Content -eq "sensors"))) {
 			throw "Get-PrtgTableData: Parameter FilterStatus requires content type sensors"
 		} elseif ($Content -eq "sensors" -and $FilterStatus) {
-			$FilterProperty += @{ "filter_status" = $FilterStatus }
+			# I apparently wrote some code that gracefully
+			# handles this (multiple properties w/ same name) two years ago.
+			# good job, past josh
+			$FilterProperty += @{ "filter_status" = $StatusFilterCodes[$FilterStatus] }
+		}
+		
+		if ($FilterTarget) {
+			if (!$FilterValue) {
+				throw "Get-PrtgTableData: Parameter FilterTarget requires parameter FilterValue also"
+			}
+			$FilterName = "filter_" + $FilterTarget
+			$FilterProperty += @{ $FilterName = $FilterValue }
 		}
 
 		if (!$Columns) {
@@ -153,11 +188,11 @@ function Get-PrtgTableData {
 		##### data returned; do!
 
 		if ($Raw) {
-			$QueryObject = HelperHTTPQuery $url
+			$QueryObject = $PrtgServerObject.HttpQuery($url,$false)
 			return $QueryObject.Data
 		}
 
-		$QueryObject = HelperHTTPQuery $url -AsXML
+		$QueryObject = $PrtgServerObject.HttpQuery($url)
 		$Data = $QueryObject.Data
 
 		$ReturnData = @()
