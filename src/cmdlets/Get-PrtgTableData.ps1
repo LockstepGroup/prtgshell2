@@ -220,6 +220,7 @@ function Get-PrtgTableData {
 			"values"	{ "PrtgShell.PrtgValue" }
 			"channels"	{ "PrtgShell.PrtgChannel" }
 			"history"	{ "PrtgShell.PrtgHistory" }
+			"maps"	{ "PrtgShell.PrtgBaseObject" }
 		}
 		
 		if ($Data.$Content.item.childnodes.count) { # this will return zero if there's an empty set
