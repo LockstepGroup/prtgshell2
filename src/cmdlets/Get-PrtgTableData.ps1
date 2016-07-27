@@ -44,7 +44,7 @@ function Get-PrtgTableData {
 	[CmdletBinding()]
 	Param (		
 		[Parameter(Mandatory=$True,Position=0)]
-		[ValidateSet("probes","groups","devices","sensors","todos","messages","values","channels","history")]
+		[ValidateSet("probes","groups","devices","sensors","todos","messages","values","channels","history","maps")]
 		[string]$Content,
 
 		[Parameter(Mandatory=$false,Position=1)]
@@ -160,6 +160,8 @@ function Get-PrtgTableData {
 				"storedreports" = @("objid","name","datetime","size")
 				
 				"reports" = @("objid","name","template","period","schedule","email","lastrun","nextrun")
+				
+				"maps" = @("objid","name")
 			}
 	
 			$SelectedColumns = $TableLookups.$Content
