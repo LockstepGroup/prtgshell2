@@ -184,15 +184,18 @@ foreach ($l in $(ls $CmdletPath)) {
 ###############################################################################
 # Add Helpers
 
-$Output += $HelperFunctionHeader
+if (Test-Path $HelperPath) {
 
-foreach ($l in $(ls $HelperPath)) {
-    $Contents  = gc $l.FullName
-    $Output   += $FunctionHeader
-    $Output   += $l.BaseName
-    $Output   += "`r`n`r`n"
-    $Output   += [string]::join("`n",$Contents)
-    $Output   += "`r`n`r`n"
+	$Output += $HelperFunctionHeader
+
+	foreach ($l in $(ls $HelperPath)) {
+		$Contents  = gc $l.FullName
+		$Output   += $FunctionHeader
+		$Output   += $l.BaseName
+		$Output   += "`r`n`r`n"
+		$Output   += [string]::join("`n",$Contents)
+		$Output   += "`r`n`r`n"
+	}
 }
 
 ###############################################################################

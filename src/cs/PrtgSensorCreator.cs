@@ -103,8 +103,5 @@ namespace PrtgShell {
                 return InputSeconds.ToString() + " seconds";
             }
         }
-		
     }
-	
-
 }

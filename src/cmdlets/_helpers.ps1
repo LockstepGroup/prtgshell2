@@ -73,7 +73,10 @@ function HelperHTTPPostCommand() {
 
 	if ( $url -and $data ) {
 		[System.Net.WebRequest]$webRequest = [System.Net.WebRequest]::Create($url);
+		
 		$webRequest.ServicePoint.Expect100Continue = $false;
+		#$webRequest.MaximumAutomaticRedirections = 2;
+		
 		if ( $credentials ) {
 			$webRequest.Credentials = $credentials;
 			$webRequest.PreAuthenticate = $true;
