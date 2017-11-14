@@ -26,6 +26,10 @@ namespace PrtgShell {
 		//public int discoverytype_ = 0;
 		//public int discoveryschedule_ = 0;
 		
+		public string discoverytype_ { get; set; }
+		public string devicetemplate_ { get; set; }
+		public string devicetemplate__check { get; set; }
+		
         public string QueryString {
             get {
                 NameValueCollection queryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
@@ -37,6 +41,10 @@ namespace PrtgShell {
                 queryString["tags_"] = String.Join(" ",this.tags_);
                 //queryString["discoverytype_"] = Convert.ToString(Convert.ToInt32(this.discoverytype_));
                 //queryString["discoveryschedule_"] = Convert.ToString(Convert.ToInt32(this.discoveryschedule_));
+				
+                if (!string.IsNullOrEmpty(this.discoverytype_)) { queryString["discoverytype_"] = this.discoverytype_; }
+                if (!string.IsNullOrEmpty(this.devicetemplate_)) { queryString["devicetemplate_"] = this.devicetemplate_; }
+                if (!string.IsNullOrEmpty(this.devicetemplate__check)) { queryString["devicetemplate__check"] = this.devicetemplate__check; }
 
                 return queryString.ToString();
             }
