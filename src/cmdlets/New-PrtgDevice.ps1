@@ -14,7 +14,7 @@ function New-PrtgDevice {
 
         $Url = $PrtgServerObject.UrlBuilder("adddevice2.htm")
 
-        HelperHTTPPostCommand $Url $PrtgObject.QueryString | Out-Null
+        HelperHTTPPostCommand $Url $PrtgObject.QueryString
 
     }
 }
