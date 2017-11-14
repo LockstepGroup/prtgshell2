@@ -1,31 +1,31 @@
 
 function New-PrtgResult {
     <#
-		.SYNOPSIS
-			Creates a PrtgShell.XmlResult object for use in ExeXml output.
+	.SYNOPSIS
+		Creates a PrtgShell.XmlResult object for use in ExeXml output.
 			
-		.DESCRIPTION
-			Creates a PrtgShell.XmlResult object for use in ExeXml output.
+	.DESCRIPTION
+		Creates a PrtgShell.XmlResult object for use in ExeXml output.
 		
-		.PARAMETER Channel
-			Name of the channel.
+	.PARAMETER Channel
+		Name of the channel.
 			
-		.PARAMETER Value
-            Integer value of the channel.
-		
-		.PARAMETER Unit
-			Unit of the value.
+	.PARAMETER Value
+    		Integer value of the channel.
+	
+	.PARAMETER Unit
+		Unit of the value.
 			
-		.PARAMETER SpeedSize
-			Size of the value given, used for speed measurements.
+	.PARAMETER SpeedSize
+		Size of the value given, used for speed measurements.
 			
-		.PARAMETER VolumeSize
-			Size of the value given, used for disk/file measurements.
+	.PARAMETER VolumeSize
+		Size of the value given, used for disk/file measurements.
 			
-		.PARAMETER SpeedTime
-			Interval for displaying a speed measurement.
+	.PARAMETER SpeedTime
+		Interval for displaying a speed measurement.
 
-		.PARAMETER Difference
+	.PARAMETER Difference
             Set the value as a difference value, as opposed to absolute.
 
         .PARAMETER DecimalMode
