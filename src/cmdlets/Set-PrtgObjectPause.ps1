@@ -68,7 +68,7 @@ function Set-PrtgObjectPause {
     Param (
 		[Parameter(Position = 0, Mandatory = $true)]
 		[alias("id")]
-		[int]$PrtgObjectId,
+		[int[]]$PrtgObjectId,
 		
 		[Parameter(ParameterSetName = "resume")]
 		[switch]$Resume,
